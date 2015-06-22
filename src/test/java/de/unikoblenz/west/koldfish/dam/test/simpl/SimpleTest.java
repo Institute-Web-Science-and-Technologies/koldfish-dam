@@ -72,7 +72,7 @@ public class SimpleTest {
 		
 		// shutting negotiator down
 		try {
-			neg.shutdown();
+			neg.terminate();
 		} catch (NegotiatorException e) {
 			log.error(e.toString(), e);
 			fail();

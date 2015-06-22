@@ -95,7 +95,7 @@ public class BatchTest {
 			log.error(e.toString(),e);
 			
 			try {
-				neg.shutdown();
+				neg.terminate();
 			} catch (NegotiatorException e1) {
 				log.error(e1.toString(),e1);
 			}
@@ -108,7 +108,7 @@ public class BatchTest {
 		
 		// shut down Negotiator
 		try {
-			neg.shutdown();
+			neg.terminate();
 		} catch (NegotiatorException e) {
 			log.error(e.toString(),e);
 			fail();

@@ -59,7 +59,7 @@ public class SimpleNegotiator implements Negotiator<Model> {
 	}
 	
 	@Override
-	public void shutdown() throws NegotiatorException {
+	public void terminate() throws NegotiatorException {
 		log.debug("shutting down");
 		shutdownAccessors();
 		shutdownReporters();

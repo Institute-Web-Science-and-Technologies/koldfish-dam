@@ -13,23 +13,9 @@ import de.unikoblenz.west.koldfish.dam.messages.RequestMessage;
  *
  * @param <T> - data that is returned.
  */
-public interface Negotiator<T> {
+public interface Negotiator<T> extends Executable<NegotiatorException>{
 
 	public Future<T> request(RequestMessage rm) throws NegotiatorException;
-	
-	/**
-	 * starts this Negotiator. 
-	 * 
-	 * @throws NegotiatorException thrown if this Negotiator could not be started.
-	 */
-	public void start() throws NegotiatorException;
-	
-	/**
-	 * shuts this Negotiator down.
-	 * 
-	 * @throws NegotiatorException thrown if this Negotiator could not be stopped properly.
-	 */
-	public void shutdown() throws NegotiatorException;
 	
 	/**
 	 * adds a Receiver to this Negotiator to be informed about Reports.
