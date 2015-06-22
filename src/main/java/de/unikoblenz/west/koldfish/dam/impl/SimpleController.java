@@ -1,4 +1,4 @@
-package de.unikoblenz.west.koldfish.dam.simpl;
+package de.unikoblenz.west.koldfish.dam.impl;
 
 import java.util.concurrent.Future;
 
@@ -12,7 +12,7 @@ import de.unikoblenz.west.koldfish.dam.Controller;
 import de.unikoblenz.west.koldfish.dam.Negotiator;
 import de.unikoblenz.west.koldfish.dam.except.ControllerException;
 import de.unikoblenz.west.koldfish.dam.except.NegotiatorException;
-import de.unikoblenz.west.koldfish.dam.simpl.messages.DereferenceRequestMessage;
+import de.unikoblenz.west.koldfish.dam.impl.messages.DereferenceRequestMessage;
 
 /**
  * example implementation of the Controller interface.

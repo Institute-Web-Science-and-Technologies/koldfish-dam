@@ -18,9 +18,9 @@ import de.unikoblenz.west.koldfish.dam.Negotiator;
 import de.unikoblenz.west.koldfish.dam.Receiver;
 import de.unikoblenz.west.koldfish.dam.except.ControllerException;
 import de.unikoblenz.west.koldfish.dam.except.NegotiatorException;
+import de.unikoblenz.west.koldfish.dam.impl.SimpleController;
+import de.unikoblenz.west.koldfish.dam.impl.SimpleNegotiator;
 import de.unikoblenz.west.koldfish.dam.messages.ReportMessage;
-import de.unikoblenz.west.koldfish.dam.simpl.SimpleController;
-import de.unikoblenz.west.koldfish.dam.simpl.SimpleNegotiator;
 
 public class BatchTest {
 

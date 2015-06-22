@@ -9,10 +9,10 @@ import com.hp.hpl.jena.rdf.model.Model;
 
 import de.unikoblenz.west.koldfish.dam.Negotiator;
 import de.unikoblenz.west.koldfish.dam.Receiver;
-import de.unikoblenz.west.koldfish.dam.crawler.Crawler;
+import de.unikoblenz.west.koldfish.dam.crawler.impl.Crawler;
+import de.unikoblenz.west.koldfish.dam.impl.SimpleNegotiator;
+import de.unikoblenz.west.koldfish.dam.impl.messages.ModelReportMessage;
 import de.unikoblenz.west.koldfish.dam.messages.ReportMessage;
-import de.unikoblenz.west.koldfish.dam.simpl.SimpleNegotiator;
-import de.unikoblenz.west.koldfish.dam.simpl.messages.ModelReportMessage;
 
 public class TestCrawler implements Receiver {
 

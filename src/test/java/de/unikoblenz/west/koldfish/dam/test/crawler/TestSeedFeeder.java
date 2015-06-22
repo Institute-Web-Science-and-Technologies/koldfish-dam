@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unikoblenz.west.koldfish.dam.crawler.CrawlQueue;
-import de.unikoblenz.west.koldfish.dam.crawler.SeedFeeder;
 import de.unikoblenz.west.koldfish.dam.crawler.impl.CrawlQueueImpl;
+import de.unikoblenz.west.koldfish.dam.crawler.impl.SeedFeeder;
 
 public class TestSeedFeeder {
 

@@ -12,20 +12,30 @@ import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 import de.unikoblenz.west.koldfish.dam.crawler.CrawlQueue;
-import de.unikoblenz.west.koldfish.dam.crawler.CrawlReceiver;
+import de.unikoblenz.west.koldfish.dam.crawler.CrawlProducer;
+import de.unikoblenz.west.koldfish.dam.crawler.impl.messages.CrawlIri;
+import de.unikoblenz.west.koldfish.dam.impl.messages.ModelReportMessage;
 import de.unikoblenz.west.koldfish.dam.messages.ReportMessage;
-import de.unikoblenz.west.koldfish.dam.simpl.messages.ModelReportMessage;
 
-public class CrawlReceiverImpl implements CrawlReceiver {
+/**
+ * Receiver implementation that can listen to a Negotiator to create CrawlMessages from incoming information.
+ * @author lkastler@uni-koblenz.de
+ *
+ */
+public class CrawlProducerImpl implements CrawlProducer {
 
-	private static final Logger log = LoggerFactory.getLogger(CrawlReceiverImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(CrawlProducerImpl.class);
 	
 	private final Executor exec = Executors.newCachedThreadPool();
 	private final IRIFactory fac = IRIFactory.iriImplementation();
 	private final CrawlQueue queue;
 	
 	
-	public CrawlReceiverImpl(CrawlQueue queue) {
+	/**
+	 * creates new CrawlProducerImpl object, binding it to the given CrawlQueue.
+	 * @param queue - bind CrawlProducerImpl to this CrawlQueue.
+	 */
+	public CrawlProducerImpl(CrawlQueue queue) {
 		this.queue = queue;
 	}
 

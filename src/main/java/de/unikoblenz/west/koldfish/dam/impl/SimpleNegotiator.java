@@ -1,4 +1,4 @@
-package de.unikoblenz.west.koldfish.dam.simpl;
+package de.unikoblenz.west.koldfish.dam.impl;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -23,12 +23,12 @@ import de.unikoblenz.west.koldfish.dam.Negotiator;
 import de.unikoblenz.west.koldfish.dam.Receiver;
 import de.unikoblenz.west.koldfish.dam.except.AccessorException;
 import de.unikoblenz.west.koldfish.dam.except.NegotiatorException;
+import de.unikoblenz.west.koldfish.dam.impl.messages.DereferenceActivationMessage;
+import de.unikoblenz.west.koldfish.dam.impl.messages.ExceptionReportMessage;
+import de.unikoblenz.west.koldfish.dam.impl.messages.ModelReportMessage;
 import de.unikoblenz.west.koldfish.dam.messages.ActivationMessage;
 import de.unikoblenz.west.koldfish.dam.messages.ReportMessage;
 import de.unikoblenz.west.koldfish.dam.messages.RequestMessage;
-import de.unikoblenz.west.koldfish.dam.simpl.messages.DereferenceActivationMessage;
-import de.unikoblenz.west.koldfish.dam.simpl.messages.ExceptionReportMessage;
-import de.unikoblenz.west.koldfish.dam.simpl.messages.ModelReportMessage;
 
 /**
  * simple Negotiator that reports complete Model objects.

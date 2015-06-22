@@ -1,4 +1,4 @@
-package de.unikoblenz.west.koldfish.dam.simpl;
+package de.unikoblenz.west.koldfish.dam.impl;
 
 import java.util.LinkedList;
 import java.util.concurrent.ExecutionException;

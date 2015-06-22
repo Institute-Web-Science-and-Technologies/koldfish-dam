@@ -1,4 +1,4 @@
-package de.unikoblenz.west.koldfish.dam.simpl.messages;
+package de.unikoblenz.west.koldfish.dam.impl.messages;
 
 import org.apache.jena.iri.IRI;
 
