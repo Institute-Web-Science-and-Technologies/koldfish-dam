@@ -1,1 +1,1 @@
-# KoLDfish Data Aquisition Module
+# KoLDfish Data Acquisition Module
