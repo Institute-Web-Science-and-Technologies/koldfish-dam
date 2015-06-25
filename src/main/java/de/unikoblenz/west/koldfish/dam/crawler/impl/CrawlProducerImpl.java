@@ -8,11 +8,11 @@ import org.apache.jena.iri.IRIFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hp.hpl.jena.rdf.model.ResIterator;
-import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.NodeIterator;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 
-import de.unikoblenz.west.koldfish.dam.crawler.CrawlQueue;
 import de.unikoblenz.west.koldfish.dam.crawler.CrawlProducer;
+import de.unikoblenz.west.koldfish.dam.crawler.CrawlQueue;
 import de.unikoblenz.west.koldfish.dam.crawler.impl.messages.CrawlIri;
 import de.unikoblenz.west.koldfish.dam.impl.messages.ModelReportMessage;
 import de.unikoblenz.west.koldfish.dam.messages.ReportMessage;
@@ -49,14 +49,14 @@ public class CrawlProducerImpl implements CrawlProducer {
 					ModelReportMessage mrm = (ModelReportMessage)rm;
 					log.debug("got message: " + mrm);
 					
-					ResIterator it = mrm.getPayload().listSubjects();
+					NodeIterator it = mrm.getPayload().listObjects();
 					
 					while(it.hasNext()) {
-						Resource r = it.next();
+						RDFNode r = it.next();
 						
 						try {
 							if(r.isURIResource()) {
-								queue.add(new CrawlIri(fac.construct(r.getURI())));
+								queue.add(new CrawlIri(fac.construct(r.asResource().getURI())));
 							}
 						}catch(IRIException e) {
 							log.warn(e.getLocalizedMessage(),e);
