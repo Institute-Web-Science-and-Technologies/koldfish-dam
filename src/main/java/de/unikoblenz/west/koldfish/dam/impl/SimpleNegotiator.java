@@ -24,6 +24,7 @@ import de.unikoblenz.west.koldfish.dam.Receiver;
 import de.unikoblenz.west.koldfish.dam.except.AccessorException;
 import de.unikoblenz.west.koldfish.dam.except.NegotiatorException;
 import de.unikoblenz.west.koldfish.dam.impl.messages.DereferenceActivationMessage;
+import de.unikoblenz.west.koldfish.dam.impl.messages.DereferenceRequestMessage;
 import de.unikoblenz.west.koldfish.dam.impl.messages.ExceptionReportMessage;
 import de.unikoblenz.west.koldfish.dam.impl.messages.ModelReportMessage;
 import de.unikoblenz.west.koldfish.dam.messages.ActivationMessage;
@@ -31,7 +32,7 @@ import de.unikoblenz.west.koldfish.dam.messages.ReportMessage;
 import de.unikoblenz.west.koldfish.dam.messages.RequestMessage;
 
 /**
- * simple Negotiator that reports complete Model objects.
+ * simple Negotiator that reports complete Model objects by dereferencing IRIs.
  * 
  * @author lkastler@uni-koblenz.de
  *
@@ -117,35 +118,42 @@ public class SimpleNegotiator implements Negotiator<Model> {
 		if(rm == null) 
 			throw new NegotiatorException("RequestMessage is empty", new NullPointerException());
 		
-		log.debug("requesting: " + rm);
-		
-		ActivationMessage am = new DereferenceActivationMessage(rm.getResourceIRI());
-		
-		// create HttpAccess.
-		HttpAccessor a = new HttpAccessor();
-		try {
-			ListenableFuture<Model> f = accessors.submit(a.activate(am));
-
-			// register callback for reporting to receivers
-			Futures.addCallback(f, new FutureCallback<Model>() {
-
-				@Override
-				public void onSuccess(Model result) {
-					ReportMessage<Model> report = new ModelReportMessage(rm.getResourceIRI(), result);
-					report(report);
-				}
-
-				@Override
-				public void onFailure(Throwable t) {
-					ReportMessage<Throwable> tm = new ExceptionReportMessage(rm.getResourceIRI(), t);
-					report(tm);
-				}
-			});
-
-			return f;
-		} catch (AccessorException e) {
-			throw new NegotiatorException(e.toString(), e);
+		if(rm instanceof DereferenceRequestMessage) {
+			DereferenceRequestMessage drm = (DereferenceRequestMessage)rm;
+			
+			
+			log.debug("requesting: " + rm);
+			
+			ActivationMessage am = new DereferenceActivationMessage(drm.getResourceIRI());
+			
+			// create HttpAccess.
+			HttpAccessor a = new HttpAccessor();
+			try {
+				ListenableFuture<Model> f = accessors.submit(a.activate(am));
+	
+				// register callback for reporting to receivers
+				Futures.addCallback(f, new FutureCallback<Model>() {
+	
+					@Override
+					public void onSuccess(Model result) {
+						ReportMessage<Model> report = new ModelReportMessage(drm.getResourceIRI(), result);
+						report(report);
+					}
+	
+					@Override
+					public void onFailure(Throwable t) {
+						ReportMessage<Throwable> tm = new ExceptionReportMessage(drm.getResourceIRI(), t);
+						report(tm);
+					}
+				});
+	
+				return f;
+			} catch (AccessorException e) {
+				throw new NegotiatorException(e.toString(), e);
+			}
 		}
+		
+		throw new NegotiatorException("unable to handle: " + rm);
 	}
 	
 	/**

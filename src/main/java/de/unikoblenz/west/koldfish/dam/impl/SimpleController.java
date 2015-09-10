@@ -26,7 +26,7 @@ public class SimpleController implements Controller<Model> {
 	
 	/**
 	 * constructor for a SimpleController with given Negotiator.
-	 * @param negotiator
+	 * @param negotiator - Negotiator to use
 	 */
 	public SimpleController(Negotiator<Model> negotiator) {
 		this.negotiator = negotiator;

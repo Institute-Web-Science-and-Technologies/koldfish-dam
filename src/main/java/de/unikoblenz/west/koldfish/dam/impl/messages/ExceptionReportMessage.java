@@ -18,6 +18,7 @@ public class ExceptionReportMessage extends Exception implements ReportMessage<T
 	
 	/**
 	 * creates an ExceptionReportModel with given Throwable as payload.
+	 * @param iri - IRI that caused the execption.
 	 * @param cause - the cause for this ExceptionReportMessage.
 	 */
 	public ExceptionReportMessage(IRI iri, Throwable cause) {

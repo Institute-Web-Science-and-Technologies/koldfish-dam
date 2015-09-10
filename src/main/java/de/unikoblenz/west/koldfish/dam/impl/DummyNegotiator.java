@@ -17,6 +17,11 @@ import de.unikoblenz.west.koldfish.dam.Receiver;
 import de.unikoblenz.west.koldfish.dam.except.NegotiatorException;
 import de.unikoblenz.west.koldfish.dam.messages.RequestMessage;
 
+/**
+ * dummy implementation of the Negotiator interface, no functionality. 
+ * @author lkastler@uni-koblenz.de
+ *
+ */
 public class DummyNegotiator implements Negotiator<Model> {
 
 	private static final Logger log = LoggerFactory.getLogger(DummyNegotiator.class);

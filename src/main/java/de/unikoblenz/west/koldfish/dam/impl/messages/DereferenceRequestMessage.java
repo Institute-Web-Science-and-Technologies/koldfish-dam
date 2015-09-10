@@ -2,6 +2,7 @@ package de.unikoblenz.west.koldfish.dam.impl.messages;
 
 import org.apache.jena.iri.IRI;
 
+import de.unikoblenz.west.koldfish.dam.messages.IRIMessage;
 import de.unikoblenz.west.koldfish.dam.messages.RequestMessage;
 
 /**
@@ -10,7 +11,7 @@ import de.unikoblenz.west.koldfish.dam.messages.RequestMessage;
  * @author lkastler@uni-koblenz.de
  *
  */
-public class DereferenceRequestMessage implements RequestMessage {
+public class DereferenceRequestMessage implements IRIMessage, RequestMessage {
 
 	private final IRI resourceIRI;
 	private final IRI endpoint;

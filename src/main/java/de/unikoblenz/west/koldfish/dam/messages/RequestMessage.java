@@ -6,6 +6,6 @@ package de.unikoblenz.west.koldfish.dam.messages;
  *  
  * @author lkastler@uni-koblenz.de
  */
-public interface RequestMessage extends IRIMessage {
+public interface RequestMessage {
 	
 }

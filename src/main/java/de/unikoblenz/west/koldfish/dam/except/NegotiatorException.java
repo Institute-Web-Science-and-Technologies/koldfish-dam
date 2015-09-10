@@ -13,5 +13,10 @@ public class NegotiatorException extends Exception {
 	public NegotiatorException(String message, Throwable cause) {
 		super(message, cause);
 	}
+	
+	// TODO doc
+	public NegotiatorException(String message) {
+		super(message);
+	}
 
 }

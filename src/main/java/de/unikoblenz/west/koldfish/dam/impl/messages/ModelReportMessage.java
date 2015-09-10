@@ -19,6 +19,7 @@ public class ModelReportMessage implements ReportMessage<Model> {
 	
 	/**
 	 * creates a new ReportModelMessage with given Model as payload.
+	 * @param iri - IRI that was called.
 	 * @param m - the Payload
 	 */
 	public ModelReportMessage(IRI iri, Model m) {
