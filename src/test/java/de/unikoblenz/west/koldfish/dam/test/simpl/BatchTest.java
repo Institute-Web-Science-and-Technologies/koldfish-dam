@@ -7,11 +7,10 @@ import java.util.List;
 
 import org.apache.jena.iri.IRI;
 import org.apache.jena.iri.IRIFactory;
+import org.apache.jena.rdf.model.Model;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.hp.hpl.jena.rdf.model.Model;
 
 import de.unikoblenz.west.koldfish.dam.Controller;
 import de.unikoblenz.west.koldfish.dam.Negotiator;

@@ -1,8 +1,7 @@
 package de.unikoblenz.west.koldfish.dam.impl.messages;
 
 import org.apache.jena.iri.IRI;
-
-import com.hp.hpl.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.Model;
 
 import de.unikoblenz.west.koldfish.dam.messages.ReportMessage;
 
