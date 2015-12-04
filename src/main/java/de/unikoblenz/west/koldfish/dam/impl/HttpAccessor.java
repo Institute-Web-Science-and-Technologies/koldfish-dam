@@ -3,11 +3,10 @@ package de.unikoblenz.west.koldfish.dam.impl;
 import java.net.MalformedURLException;
 import java.util.concurrent.Callable;
 
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import de.unikoblenz.west.koldfish.dam.Accessor;
 import de.unikoblenz.west.koldfish.dam.except.AccessorException;
