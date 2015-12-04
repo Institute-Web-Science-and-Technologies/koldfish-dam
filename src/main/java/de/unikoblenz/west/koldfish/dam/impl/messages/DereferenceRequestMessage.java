@@ -13,6 +13,8 @@ import de.unikoblenz.west.koldfish.dam.messages.RequestMessage;
  */
 public class DereferenceRequestMessage implements IRIMessage, RequestMessage {
 
+	private static final long serialVersionUID = 1L;
+	
 	private final IRI resourceIRI;
 	private final IRI endpoint;
 	

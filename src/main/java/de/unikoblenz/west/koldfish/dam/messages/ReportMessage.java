@@ -7,11 +7,13 @@ package de.unikoblenz.west.koldfish.dam.messages;
  *
  * @param <T> - type of payload
  */
-public interface ReportMessage<T> extends IRIMessage{
+public interface ReportMessage<T> extends IRIMessage {
 
 	/**
 	 * returns the payload of this message.
 	 * @return the payload of this message.
 	 */
 	public T getPayload();
+	
+	public Object clone() throws CloneNotSupportedException;
 }

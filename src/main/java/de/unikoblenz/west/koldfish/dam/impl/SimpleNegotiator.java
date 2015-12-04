@@ -17,7 +17,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.rits.cloning.Cloner;
 
 import de.unikoblenz.west.koldfish.dam.Negotiator;
 import de.unikoblenz.west.koldfish.dam.Receiver;
@@ -161,9 +160,13 @@ public class SimpleNegotiator implements Negotiator<Model> {
 	 * @param rm - ReportMessage to report.
 	 */
 	private void report(ReportMessage<?> rm) {
-		Cloner clone = new Cloner();
+
 		synchronized(receivers) {
-			reporter.execute(new Reporter(clone.deepClone(rm), receivers));			
+			try {
+				reporter.execute(new Reporter((ReportMessage<?>)rm.clone(), receivers));
+			} catch (CloneNotSupportedException e) {
+				log.error(e.toString(),e);
+			}			
 		}
 		
 	}

@@ -106,20 +106,22 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.jena</groupId>
+			<artifactId>jena-arq</artifactId>
+			<version>3.0.0</version>
+			<exclusions>
+				<exclusion>
+					<!-- removal of slf4j via log4j -->
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<!-- guava for -->
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>18.0</version>
-		</dependency>
-		<dependency>
-			<groupId>uk.com.robust-it</groupId>
-			<artifactId>cloning</artifactId>
-			<version>1.9.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.jena</groupId>
-			<artifactId>jena-arq</artifactId>
-			<version>3.0.0</version>
-		</dependency>
+		</dependency>		
 	</dependencies>
 </project>

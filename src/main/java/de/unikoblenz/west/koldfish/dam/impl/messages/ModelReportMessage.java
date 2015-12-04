@@ -2,6 +2,7 @@ package de.unikoblenz.west.koldfish.dam.impl.messages;
 
 import org.apache.jena.iri.IRI;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 
 import de.unikoblenz.west.koldfish.dam.messages.ReportMessage;
 
@@ -13,8 +14,10 @@ import de.unikoblenz.west.koldfish.dam.messages.ReportMessage;
  */
 public class ModelReportMessage implements ReportMessage<Model> {
 
+	private static final long serialVersionUID = 1L;
+	
 	private final IRI iri;
-	private final Model m;
+	private final Model model;
 	
 	/**
 	 * creates a new ReportModelMessage with given Model as payload.
@@ -23,7 +26,7 @@ public class ModelReportMessage implements ReportMessage<Model> {
 	 */
 	public ModelReportMessage(IRI iri, Model m) {
 		this.iri = iri;
-		this.m = m;
+		this.model = m;
 	}
 	
 	@Override
@@ -33,11 +36,17 @@ public class ModelReportMessage implements ReportMessage<Model> {
 	
 	@Override
 	public Model getPayload() {
-		return m;
+		return model;
 	}
 
 	@Override
 	public String toString() {
-		return "ReportModelMessage [iri=" + iri +"; model=" + m + "]";
+		return "ReportModelMessage [iri=" + iri +"; model=" + model + "]";
+	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		Model m = ModelFactory.createDefaultModel();
+		m.add(model);
+		return new ModelReportMessage(iri, m);
 	}
 }

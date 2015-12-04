@@ -6,6 +6,8 @@ import de.unikoblenz.west.koldfish.dam.messages.ActivationMessage;
 
 public class DereferenceActivationMessage implements ActivationMessage {
 
+	private static final long serialVersionUID = 1L;
+	
 	private final IRI iri; 
 	
 	public DereferenceActivationMessage(IRI iri) {

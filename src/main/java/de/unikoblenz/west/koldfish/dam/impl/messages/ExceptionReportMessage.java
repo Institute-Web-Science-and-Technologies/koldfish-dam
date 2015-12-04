@@ -35,4 +35,8 @@ public class ExceptionReportMessage extends Exception implements ReportMessage<T
 	public IRI getResourceIRI() {
 		return iri;
 	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		return new ExceptionReportMessage(iri, getCause());
+	}
 }
