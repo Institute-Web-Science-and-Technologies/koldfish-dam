@@ -15,5 +15,5 @@ Download the code from [github](https://github.com/lkastler/koldfish-dam) and ex
 In koldfish-dam, we use the following dependencies:
 - [Apache Jena](http://jena.apache.org) for retrieving and parsing RDF data (Apache 2.0 Lisence).
 - [Google Guava](https://github.com/google/guava) for improved concurrent processes (Apache 2.0 Lisence).
-- [SLF4J](http://www.slf4j.org/) for logging (MIT License).
+- [Log4j 2.x](logging.apache.org/log4j/2.x/) for logging (Apache 2.0 License).
 - uk.com.robust-it cloning for deep cloning (Apache 2.0 Lisence).
