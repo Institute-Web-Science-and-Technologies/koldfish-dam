@@ -8,8 +8,8 @@ import java.util.concurrent.TimeoutException;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.unikoblenz.west.koldfish.dam.Negotiator;
 import de.unikoblenz.west.koldfish.dam.Receiver;
@@ -23,7 +23,7 @@ import de.unikoblenz.west.koldfish.dam.messages.RequestMessage;
  */
 public class DummyNegotiator implements Negotiator<Model> {
 
-	private static final Logger log = LoggerFactory.getLogger(DummyNegotiator.class);
+	private static final Logger log = LogManager.getLogger(DummyNegotiator.class);
 
 	// TODO receiver impl maybe?
 	

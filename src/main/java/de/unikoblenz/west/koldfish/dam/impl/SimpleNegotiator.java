@@ -9,8 +9,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.jena.rdf.model.Model;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -38,7 +38,7 @@ import de.unikoblenz.west.koldfish.dam.messages.RequestMessage;
  */
 public class SimpleNegotiator implements Negotiator<Model> {
 
-	private static final Logger log = LoggerFactory.getLogger(SimpleNegotiator.class);
+	private static final Logger log = LogManager.getLogger(SimpleNegotiator.class);
 
 	private final ListeningExecutorService accessors = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
 	private final ExecutorService reporter = Executors.newCachedThreadPool(); 

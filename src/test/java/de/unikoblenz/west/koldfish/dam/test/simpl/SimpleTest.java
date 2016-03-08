@@ -5,9 +5,9 @@ import static org.junit.Assert.fail;
 import org.apache.jena.iri.IRI;
 import org.apache.jena.iri.IRIFactory;
 import org.apache.jena.rdf.model.Model;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import de.unikoblenz.west.koldfish.dam.Controller;
 import de.unikoblenz.west.koldfish.dam.Negotiator;
@@ -20,7 +20,7 @@ import de.unikoblenz.west.koldfish.dam.messages.ReportMessage;
 
 public class SimpleTest {
 
-	private static final Logger log = LoggerFactory.getLogger(SimpleTest.class);
+	private static final Logger log = LogManager.getLogger(SimpleTest.class);
 
 	/**
 	 * defines a simple test 
