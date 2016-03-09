@@ -52,54 +52,52 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<!-- log4j 2 -->
 		<dependency>
-			<!-- log4j2 api -->
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
 			<version>2.5</version>
 		</dependency>
 		<dependency>
-			<!-- log4j2 core -->
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 			<version>2.5</version>
 		</dependency>
 		<dependency>
-			<!-- log4j1.2 to 2 bridge -->
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-1.2-api</artifactId>
 			<version>2.5</version>
 		</dependency>
+		<!-- junit, for testing -->
 		<dependency>
-			<!-- junit, for testing -->
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- JMS, java messaging service -->
 		<dependency>
-			<!-- RDF and SPARQL, Apache Jena -->
-			<groupId>org.apache.jena</groupId>
-			<artifactId>jena-core</artifactId>
-			<version>3.0.0</version>
+			<groupId>javax.jms</groupId>
+			<artifactId>javax.jms-api</artifactId>
+			<version>2.0</version>
 		</dependency>
+		<!-- Apache ActiveMQ -->
 		<dependency>
-			<!-- RDF and SPARQL, Apache Jena -->
-			<groupId>org.apache.jena</groupId>
-			<artifactId>jena</artifactId>
-			<version>3.0.0</version>
-			<type>pom</type>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-client</artifactId>
+			<version>5.13.2</version>
 		</dependency>
+		<!-- Apache http components -->
 		<dependency>
-			<groupId>org.apache.jena</groupId>
-			<artifactId>jena-arq</artifactId>
-			<version>3.0.0</version>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.2</version>
 		</dependency>
+		<!-- Google Guava for concurrency -->
 		<dependency>
-			<!-- guava for -->
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>18.0</version>
+			<version>19.0</version>
 		</dependency>
 	</dependencies>
 </project>
