@@ -20,9 +20,10 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.util.ThreadPoolUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configurator;
 
 import de.unikoblenz.west.koldfish.dam.impl.HttpAccessWorker;
 import de.unikoblenz.west.koldfish.dam.messages.DerefMessage;
@@ -67,6 +68,23 @@ public class DataAccessMaster extends Thread implements AutoCloseable {
 		data = session.createProducer(session.createTopic(Constants.DAM_DATA));
 		// error output
 		errors = session.createProducer(session.createTopic(Constants.DAM_ERRORS));
+		
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				close();
+				try {
+					DataAccessMaster.this.join();
+				} catch (InterruptedException e) {
+					log.error(e);
+				}
+				if( LogManager.getContext() instanceof LoggerContext ) {
+	                Configurator.shutdown((LoggerContext)LogManager.getContext());
+	            } else {
+	                log.warn("Unable to shutdown log4j2");
+	            }
+			}
+		});
 	}
 
 	/*
@@ -76,19 +94,6 @@ public class DataAccessMaster extends Thread implements AutoCloseable {
 	 */
 	@Override
 	public void run() {
-		Thread t = this;
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				close();
-				try {
-					t.join();
-				} catch (InterruptedException e) {
-					log.error(e);
-				}
-			}
-		});
-		
 		try {
 			deref.setMessageListener(setDerefListener(session, data, errors));
 

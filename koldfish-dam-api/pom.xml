@@ -13,5 +13,10 @@
   		<artifactId>jena-iri</artifactId>
   		<version>3.0.1</version>
   	</dependency>
+  	<dependency>
+  		<groupId>de.unikoblenz.west.koldfish</groupId>
+  		<artifactId>koldfish-messaging</artifactId>
+  		<version>0.0.1</version>
+  	</dependency>
   </dependencies>
 </project>
