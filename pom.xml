@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.unikoblenz.west.koldfish</groupId>
 	<artifactId>koldfish-dam</artifactId>
-	<version>alpha3</version>
+	<version>0.0.1</version>
 	<name>KoLDfish Data Aquisition Module</name>
 	<properties>
 		<!-- properties -->
@@ -81,6 +81,12 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+		<!-- koldfish messaging -->
+  		<groupId>de.unikoblenz.west.koldfish</groupId>
+  		<artifactId>koldfish-messaging</artifactId>
+  		<version>${version}</version>
+  	</dependency>
 		<!-- JMS, java messaging service -->
 		<dependency>
 			<groupId>javax.jms</groupId>

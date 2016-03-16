@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>de.unikoblenz.west.koldfish</groupId>
 		<artifactId>koldfish-dam</artifactId>
-		<version>alpha3</version>
+		<version>0.0.1</version>
 	</parent>
 	<artifactId>koldfish-dam-backend</artifactId>
 	<build>
@@ -26,6 +26,7 @@
 		</plugins>
 	</build>
 	<dependencies>
+		
 		<!-- Apache ActiveMQ -->
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
@@ -43,6 +44,11 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.2</version>
+		</dependency>
+		<dependency>
+			<groupId>de.unikoblenz.west.koldfish</groupId>
+			<artifactId>koldfish-messaging</artifactId>
+			<version>0.0.1</version>
 		</dependency>
 	</dependencies>
 </project>

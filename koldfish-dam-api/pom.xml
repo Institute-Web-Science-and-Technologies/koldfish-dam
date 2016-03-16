@@ -3,7 +3,7 @@
   <parent>
     <groupId>de.unikoblenz.west.koldfish</groupId>
     <artifactId>koldfish-dam</artifactId>
-    <version>alpha3</version>
+    <version>0.0.1</version>
   </parent>
   <artifactId>koldfish-dam-api</artifactId>
   <name>Koldfish Data Access Module API</name>
@@ -12,11 +12,6 @@
   		<groupId>org.apache.jena</groupId>
   		<artifactId>jena-iri</artifactId>
   		<version>3.0.1</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>de.unikoblenz.west.koldfish</groupId>
-  		<artifactId>koldfish-messaging</artifactId>
-  		<version>0.0.1</version>
   	</dependency>
   </dependencies>
 </project>

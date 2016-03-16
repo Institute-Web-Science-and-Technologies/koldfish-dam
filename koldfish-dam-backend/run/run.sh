@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 JAVA=java
-DAM_JAR=target/koldfish-dam-backend-alpha3-jar-with-dependencies.jar
+DAM_JAR=target/koldfish-dam-backend-*-jar-with-dependencies.jar
 ACTIVEMQ_URL=$1
 LOG4J_CONFIG=run/log4j2.xml
 
