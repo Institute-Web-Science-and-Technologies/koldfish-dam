@@ -8,6 +8,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
+import de.unikoblenz.west.koldfish.dam.AccessWorkerException;
 import de.unikoblenz.west.koldfish.dam.DataAccessWorker;
 
 /**
@@ -40,6 +41,20 @@ public class HttpAccessWorker implements DataAccessWorker<String> {
 			try (CloseableHttpResponse response = httpclient.execute(httpget)){
 			    return EntityUtils.toString(response.getEntity());
 			}
+		} catch(Exception e) {
+			throw new AccessWorkerException(e);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.function.Supplier#get()
+	 */
+	@Override
+	public String get() {
+		try {
+			return call();
+		} catch (Exception e) {
+			throw new AccessWorkerException(e);
 		}
 	}
 }
