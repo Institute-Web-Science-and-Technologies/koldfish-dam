@@ -22,6 +22,7 @@ import de.unikoblenz.west.koldfish.dam.DataAccessModule;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleException;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleListener;
 import de.unikoblenz.west.koldfish.dam.DerefResponse;
+import de.unikoblenz.west.koldfish.dam.ErrorResponse;
 
 /**
  * @author lkastler
@@ -53,7 +54,7 @@ public class TestDummyDataAccessModule {
 	private static DataAccessModuleListener getRandomDAMListener() {
 		return new DataAccessModuleListener() {
 			@Override
-			public void derefResponse(DerefResponse response) {
+			public void onDerefResponse(DerefResponse response) {
 				log.debug(response);
 					for (long[] item : response) {
 					assertTrue(item.length == 3 || item.length == 4);
@@ -62,6 +63,11 @@ public class TestDummyDataAccessModule {
 					}
 				}
 			}
+			
+			@Override
+			public void onErrorResponse(ErrorResponse response) {
+				fail("unexpected");
+			}
 		};
 	}
 	
@@ -69,9 +75,14 @@ public class TestDummyDataAccessModule {
 	private static DataAccessModuleListener getNoopDAMListener() {
 		return new DataAccessModuleListener() {
 			@Override
-			public void derefResponse(DerefResponse response) {
+			public void onDerefResponse(DerefResponse response) {
 				log.debug(response + " : how did that happen ???");
 				fail();
+			}
+
+			@Override
+			public void onErrorResponse(ErrorResponse response) {
+				fail("unexpected");
 			}
 		};
 	}
@@ -94,7 +105,7 @@ public class TestDummyDataAccessModule {
 		assertFalse(dam.isStarted());
 		
 		try {
-			dam.addListener(listener);
+			dam.setListener(listener);
 
 			assertFalse(dam.isStarted());
 			
@@ -117,7 +128,7 @@ public class TestDummyDataAccessModule {
 	 * tests DataAccessModule.deref() with a started DAM.
 	 * @throws Exception thrown if something unforeseen happens
 	 */
-	public void testDeref() throws Exception {
+	public void testDerefIri() throws Exception {
 		assertFalse(dam.isStarted());
 		
 		try {
@@ -133,13 +144,44 @@ public class TestDummyDataAccessModule {
 		assertFalse(dam.isStarted());
 	}
 	
+	@Test
+	/**
+	 * tests DataAccessModule.deref() with a started DAM.
+	 * @throws Exception thrown if something unforeseen happens
+	 */
+	public void testDerefId() throws Exception {
+		assertFalse(dam.isStarted());
+		
+		try {
+			dam.start();
+			
+			assertTrue(dam.isStarted());
+			
+			dam.deref(100);
+		} finally {
+			dam.close();
+		}
+		
+		assertFalse(dam.isStarted());
+	}	
+	
 	@Test(expected=DataAccessModuleException.class)
 	/**
 	 * tests DataAccessModule.deref() with a halted DAM, should throw an exception.
 	 * @throws Exception should be thrown since DAM has not been started.
 	 */
-	public void testUnstartedDeref() throws Exception {
+	public void testUnstartedDerefIri() throws Exception {
 		assertFalse(dam.isStarted());
 		dam.deref(someIRI);
+	}
+	
+	@Test(expected=DataAccessModuleException.class)
+	/**
+	 * tests DataAccessModule.deref() with a halted DAM, should throw an exception.
+	 * @throws Exception should be thrown since DAM has not been started.
+	 */
+	public void testUnstartedDerefId() throws Exception {
+		assertFalse(dam.isStarted());
+		dam.deref(100);
 	}
 }

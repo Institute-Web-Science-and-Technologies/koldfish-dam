@@ -69,6 +69,17 @@ public class DummyDataAccessModule implements DataAccessModule {
 		log.debug("deref: " + iri.toString());
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unikoblenz.west.koldfish.dam.DataAccessModule#deref(long)
+	 */
+	@Override
+	public void deref(long compressedIri) throws DataAccessModuleException {
+		if(!running) {
+			throw new DataAccessModuleException("DataAccessModule is not running!");
+		}
+		log.debug("deref: " + Long.toString(compressedIri));
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -77,7 +88,7 @@ public class DummyDataAccessModule implements DataAccessModule {
 	 * .west.koldfish.dam.DataAccessModuleListener)
 	 */
 	@Override
-	public void addListener(DataAccessModuleListener listener) {
+	public void setListener(DataAccessModuleListener listener) {
 		this.listener = listener;
 	}
 
@@ -145,7 +156,7 @@ public class DummyDataAccessModule implements DataAccessModule {
 						
 						log.debug("send: " + res);
 						
-						listener.derefResponse(res);
+						listener.onDerefResponse(res);
 					
 						Thread.sleep((random.nextInt(10) + 1) * 100);
 					} catch (InterruptedException e) {
@@ -200,6 +211,4 @@ public class DummyDataAccessModule implements DataAccessModule {
 	public String toString() {
 		return  "DummyDataAccessModule [running=" + running + ", mode=" + ((random != null) ? "random" : "no-op") + "]";
 	}
-	
-	
 }

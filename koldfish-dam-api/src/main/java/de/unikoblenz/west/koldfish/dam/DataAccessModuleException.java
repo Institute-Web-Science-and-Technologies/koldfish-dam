@@ -4,6 +4,7 @@
 package de.unikoblenz.west.koldfish.dam;
 
 /**
+ * Exception class for exceptions caused by the DataAccessModule.
  * 
  * @author lkastler
  */
