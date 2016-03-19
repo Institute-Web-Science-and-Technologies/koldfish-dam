@@ -1,5 +1,5 @@
 # Koldfish Data Access Module
-<meta property="http://purl.org/dc/elements/1.1/creator" content="Leon Kastler" />
+- Creator: <span property="http://purl.org/dc/elements/1.1/creator">Leon Kastler</span>
 
 The KoLDfish data access module, offers a simple API for fast access to the Linked Open Data cloud.
 It provides a Java API, a simple implementation for it as well as a simple crawler for linked data.
