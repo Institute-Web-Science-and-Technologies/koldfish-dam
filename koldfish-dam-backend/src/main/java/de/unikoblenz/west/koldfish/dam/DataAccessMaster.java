@@ -5,227 +5,120 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
-import javax.jms.Session;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configurator;
 
 import de.unikoblenz.west.koldfish.dam.impl.HttpAccessWorker;
-import de.unikoblenz.west.koldfish.dam.messages.DerefMessage;
+import de.unikoblenz.west.koldfish.dam.impl.NxEncodingParser;
+import de.unikoblenz.west.koldfish.dictionary.Dictionary;
+import de.unikoblenz.west.koldfish.fluid.ConnectionManager;
 
 /**
  * responsible for JMS connections and controls data access workers.
  * 
  * @author lkastler
  */
-public class DataAccessMaster extends Thread implements AutoCloseable {
+public class DataAccessMaster {
 
-	private static final Logger log = LogManager
-			.getLogger(DataAccessMaster.class);
+  private static final Logger log = LogManager.getLogger(DataAccessMaster.class);
 
-	private static final Lock lock = new ReentrantLock();
-	private static final Condition running = lock.newCondition();
+  private final ExecutorService service = Executors.newCachedThreadPool();
 
-	private Connection connection;
-	private Session session;
-	private MessageConsumer deref;
-	private MessageProducer data;
-	private MessageProducer errors;
+  private final Dictionary dictionary;
+  private final EncodingParser parser;
 
-	private final ExecutorService service = Executors.newCachedThreadPool();
 
-	/**
-	 * creates a new DataAccessMasterImpl object, using given
-	 * ConnectivityFactory for creating JMS connection, sessions, etc.
-	 * 
-	 * @param connectionFactory
-	 *            - JMS ConnectivityFactory to connect to a broker.
-	 * @throws JMSException
-	 */
-	public DataAccessMaster(ConnectionFactory connectionFactory)
-			throws JMSException {
-		connection = connectionFactory.createConnection();
-		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		// deref queue
-		deref = session
-				.createConsumer(session.createQueue(Constants.DAM_DEREF));
-		// data output
-		data = session.createProducer(session.createTopic(Constants.DAM_DATA));
-		// error output
-		errors = session.createProducer(session.createTopic(Constants.DAM_ERRORS));
-		
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				close();
-				try {
-					DataAccessMaster.this.join();
-				} catch (InterruptedException e) {
-					log.error(e);
-				}
-				if( LogManager.getContext() instanceof LoggerContext ) {
-	                Configurator.shutdown((LoggerContext)LogManager.getContext());
-	            } else {
-	                log.warn("Unable to shutdown log4j2");
-	            }
-			}
-		});
-	}
+  /**
+   * starts the DataAccessManager
+   * 
+   * @param args - no arguments.
+   */
+  public static void main(String[] args) {
+    log.info("starting data access module");
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Runnable#run()
-	 */
-	@Override
-	public void run() {
-		try {
-			deref.setMessageListener(setDerefListener(session, data, errors));
+    Dictionary dict = Dictionary.get();
 
-			connection.start();
+    new DataAccessMaster(dict, new NxEncodingParser(dict));
 
-			log.debug("running");
+    log.debug("started");
+  }
 
-			lock.lock();
-			try {
-				running.await();
-			} catch (InterruptedException e) {
-				log.error(e);
-			} finally {
-				lock.unlock();
-			}
-		} catch (JMSException e) {
-			log.catching(e);
-		}
-	}
+  private DataAccessMaster(Dictionary dictionary, EncodingParser parser) {
+    this.dictionary = dictionary;
+    this.parser = parser;
 
-	private MessageListener setDerefListener(Session session,
-			MessageProducer data, MessageProducer error) {
-		return new MessageListener() {
-			@Override
-			public void onMessage(Message msg) {
-				try {
-					// is ObjectMessage?
-					if (msg instanceof ObjectMessage) {
-						Serializable content = ((ObjectMessage) msg)
-								.getObject();
+    init();
 
-						log.debug("received: {}", content);
+    Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+  }
 
-						// is deref command?
-						if (content instanceof DerefMessage) {
-							String iri = ((DerefMessage) content).getIRI();
-							log.debug("retrieving: {}", iri);
+  /**
+   * initializes connections.
+   */
+  private void init() {
+    try {
+      ConnectionManager.get().init().createQueue("dam.deref", new MessageListener() {
+        @Override
+        public void onMessage(Message msg) {
+          try {
+            // is ObjectMessage?
+            if (msg instanceof ObjectMessage) {
+              Serializable content = ((ObjectMessage) msg).getObject();
 
-							if (!service.isShutdown()) {
-								CompletableFuture
-										.supplyAsync(new HttpAccessWorker(iri),
-												service)
-										.whenComplete(
-												(result, ex) -> {
-													try {
-														if (ex != null) {
-															error.send(session
-																	.createObjectMessage(ex));
-														} else {
-															data.send(session
-																	.createObjectMessage(result));
-														}
-													} catch (Exception e) {
-														log.error(e);
-													}
-												});
-							} else {
-								log.debug("executor already shut down");
-							}
-						}
-					}
-				} catch (Exception e) {
-					log.error(e);
-				}
-			}
-		};
-	}
+              log.debug("received: {}", content);
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.AutoCloseable#close()
-	 */
-	@Override
-	public void close() {
-		log.debug("closing");
+              // is deref command?
+              if (content instanceof DerefMessage) {
+                String iri = ((DerefMessage) content).getIRI();
+                log.debug("retrieving: {}", iri);
 
-		try {
-			service.shutdown();
-			if (!service.awaitTermination(30, TimeUnit.SECONDS)) {
-				service.shutdownNow();
-			}
-		} catch (InterruptedException e) {
-			log.error(e);
-		}
+                if (!service.isShutdown()) {
+                  CompletableFuture.supplyAsync(new HttpAccessWorker(dictionary, parser, iri),
+                      service).whenComplete((result, ex) -> {
+                    try {
+                      if (ex != null && ex instanceof ErrorResponse) {
+                        ConnectionManager.get().sendToTopic("dam.errors", (ErrorResponse) ex);
+                      } else {
+                        ConnectionManager.get().sendToTopic("dam.data", result);
+                      }
+                    } catch (Exception e) {
+                      log.error(e);
+                    }
+                  });
+                } else {
+                  log.error("executor already shut down");
+                }
+              }
+            }
+          } catch (Exception e) {
+            log.error(e);
+          }
+        }
+      }).start();
+    } catch (JMSException e) {
+      log.error(e);
+    }
+  }
 
-		try {
-			deref.close();
-			data.close();
-			errors.close();
-			session.close();
-			connection.close();
-		} catch (JMSException e) {
-			log.error(e);
-		}
+  /**
+   * closes this DataAccessManager.
+   */
+  public void close() {
+    log.debug("closing");
 
-		lock.lock();
-		try {
-			running.signalAll();
-		} finally {
-			lock.unlock();
-		}
-
-		log.debug("closed");
-
-	}
-
-	/**
-	 * starts the DataAccessManager
-	 * 
-	 * @param args
-	 *            - no arguments.
-	 */
-	public static void main(String[] args) {
-		log.info("accessing {}",
-				ActiveMQConnectionFactory.DEFAULT_BROKER_BIND_URL);
-
-		ActiveMQConnectionFactory fac = new ActiveMQConnectionFactory(
-				ActiveMQConnectionFactory.DEFAULT_USER,
-				ActiveMQConnectionFactory.DEFAULT_PASSWORD,
-				ActiveMQConnectionFactory.DEFAULT_BROKER_BIND_URL);
-
-		// FIXME hardcore hack: http://activemq.apache.org/objectmessage.html
-		fac.setTrustAllPackages(true);
-
-		DataAccessMaster master;
-		try {
-			
-			master = new DataAccessMaster(fac);
-			master.start();
-		}
-		catch (JMSException e1) {log.error(e1);}
-		log.debug("done");
-	}
+    service.shutdown();
+    try {
+      if (service.awaitTermination(60, TimeUnit.SECONDS)) {
+        service.shutdownNow();
+      }
+    } catch (InterruptedException e) {
+      log.error(e);
+    }
+  }
 }

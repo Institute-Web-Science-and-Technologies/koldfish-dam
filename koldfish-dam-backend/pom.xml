@@ -7,9 +7,13 @@
 		<version>0.0.1</version>
 	</parent>
 	<artifactId>koldfish-dam-backend</artifactId>
+	<properties>
+		<versions.nxparser>2.3.3</versions.nxparser>
+	</properties>
 	<build>
 		<plugins>
 			<plugin>
+				<!-- maven assembly -->
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.6</version>
 				<configuration>
@@ -23,10 +27,36 @@
 					</descriptorRefs>
 				</configuration>
 			</plugin>
+			<plugin>
+				<!-- maven sources -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<!-- maven sources -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
-		
+
 		<!-- Apache ActiveMQ -->
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
@@ -34,8 +64,8 @@
 			<version>5.13.2</version>
 			<exclusions>
 				<exclusion>
-					<groupId>org.apache.geronimo.specs</groupId>
-					<artifactId>geronimo-jms_1.1_spec</artifactId>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -44,11 +74,38 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>de.unikoblenz.west.koldfish</groupId>
 			<artifactId>koldfish-messaging</artifactId>
-			<version>0.0.1</version>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>de.unikoblenz.west.koldfish</groupId>
+			<artifactId>koldfish-dam-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.semanticweb.yars</groupId>
+			<artifactId>nxparser</artifactId>
+			<version>${versions.nxparser}</version>
+			<type>pom</type>
+		</dependency>
+		<dependency>
+			<groupId>org.semanticweb.yars</groupId>
+			<artifactId>nxparser-parsers</artifactId>
+			<version>${versions.nxparser}</version>
+		</dependency>
+		<dependency>
+			<groupId>de.unikoblenz.west.koldfish</groupId>
+			<artifactId>koldfish-dictionary-api</artifactId>
+			<version>0.1</version>
 		</dependency>
 	</dependencies>
 </project>

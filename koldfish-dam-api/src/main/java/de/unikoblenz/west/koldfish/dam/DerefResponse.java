@@ -3,7 +3,7 @@
  */
 package de.unikoblenz.west.koldfish.dam;
 
-import de.uni_koblenz.west.koldfish.messaging.KoldfishMessage;
+import de.unikoblenz.west.koldfish.messages.KoldfishMessage;
 
 /**
  * response from the DAM backend when successfully dereferenced a given IRI.
@@ -13,4 +13,10 @@ import de.uni_koblenz.west.koldfish.messaging.KoldfishMessage;
  */
 public interface DerefResponse extends KoldfishMessage, Iterable<long[]> {
 
+  /**
+   * returns IRI that has been dereferenced.
+   * 
+   * @return IRI that has been dereferenced.
+   */
+  public long getDerefIri();
 }

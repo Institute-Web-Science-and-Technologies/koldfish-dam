@@ -87,17 +87,18 @@
   		<artifactId>koldfish-messaging</artifactId>
   		<version>${version}</version>
   	</dependency>
+  	<dependency>
 		<!-- JMS, java messaging service -->
-		<dependency>
-			<groupId>javax.jms</groupId>
-			<artifactId>javax.jms-api</artifactId>
-			<version>2.0.1</version>
-		</dependency>
-
+		<groupId>org.apache.geronimo.specs</groupId>
+		<artifactId>geronimo-jms_1.1_spec</artifactId>
+		<version>1.1.1</version>
+	</dependency>
 	</dependencies>
 	<packaging>pom</packaging>
 	<modules>
 		<module>koldfish-dam-api</module>
-		<module>koldfish-dam-impl</module>
+		<module>koldfish-dam-backend</module>
+		<module>koldfish-dam-example</module>
+		<module>koldfish-dam-client</module>
 	</modules>
 </project>

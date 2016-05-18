@@ -1,13 +1,13 @@
-package de.unikoblenz.west.koldfish.dam.messages;
+package de.unikoblenz.west.koldfish.dam;
 
-import java.io.Serializable;
+import de.unikoblenz.west.koldfish.messages.KoldfishMessage;
 
 /**
  * message for dereferencing an IRI.
  * 
  * @author lkastler
  */
-public class DerefMessage implements Serializable {
+public class DerefMessage implements KoldfishMessage {
 
 	private static final long serialVersionUID = 1L;
 	
