@@ -8,16 +8,18 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 import java.util.Random;
 
 import org.apache.jena.iri.IRI;
 import org.apache.jena.iri.IRIFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import de.unikoblenz.west.koldfish.dam.DataAccessModule;
@@ -27,6 +29,8 @@ import de.unikoblenz.west.koldfish.dam.DerefResponse;
 import de.unikoblenz.west.koldfish.dam.ErrorResponse;
 
 /**
+ * testing the DummyDataAccessModuleListener, with random answers and without
+ * 
  * @author lkastler
  *
  */
@@ -38,15 +42,31 @@ public class TestDummyDataAccessModuleImplementations {
 
   private final IRI someIRI = IRIFactory.iriImplementation().create("http://dbpedia.org/");
 
-  @Parameters(name = "{0}")
-  public static List<DataAccessModule> data() {
-    return Arrays.asList(new DummyDataAccessModule(new Random(1000),
-        TestDummyDataAccessModuleImplementations.getRandomDAMListener()),
-        new DummyDataAccessModule(TestDummyDataAccessModuleImplementations.getNoopDAMListener()));
+  @Parameters
+  public static Collection<Object> data() {
+    return Arrays.asList(new Random(1000), // with randomizer
+        new Object() // without randomizer, just no op
+        );
+  }
+
+  @Parameter
+  public Object rand;
+
+  private DataAccessModule dam;
+
+  @Before
+  public void setUp() {
+    // initializes mock dictionary
+
+
+    // sets up the DAMListener
+    dam =
+        rand instanceof Random ? new DummyDataAccessModule((Random) rand, getRandomDAMListener())
+            : new DummyDataAccessModule(null, getNoopDAMListener());
   }
 
   // Listener to test random dummy
-  private static DataAccessModuleListener getRandomDAMListener() {
+  private DataAccessModuleListener getRandomDAMListener() {
     return new DataAccessModuleListener() {
       @Override
       public void onDerefResponse(DerefResponse response) {
@@ -66,12 +86,12 @@ public class TestDummyDataAccessModuleImplementations {
     };
   }
 
-  // Listener to test no op dummy
-  private static DataAccessModuleListener getNoopDAMListener() {
+  // Listener to test no operation dummy
+  private DataAccessModuleListener getNoopDAMListener() {
     return new DataAccessModuleListener() {
       @Override
       public void onDerefResponse(DerefResponse response) {
-        log.debug(response + " : how did that happen ???");
+        log.debug("{} : how did that happen ???", response);
         fail();
       }
 
@@ -82,13 +102,6 @@ public class TestDummyDataAccessModuleImplementations {
     };
   }
 
-
-  private DataAccessModule dam;
-
-
-  public TestDummyDataAccessModuleImplementations(DataAccessModule dam) {
-    this.dam = dam;
-  }
 
   @Test
   /**

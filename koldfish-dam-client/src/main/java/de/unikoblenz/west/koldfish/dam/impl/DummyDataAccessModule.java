@@ -9,19 +9,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import javax.jms.JMSException;
-
 import org.apache.jena.iri.IRI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.google.common.collect.Lists;
 
 import de.unikoblenz.west.koldfish.dam.DataAccessModule;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleException;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleListener;
 import de.unikoblenz.west.koldfish.dam.DerefResponse;
-import de.unikoblenz.west.koldfish.dictionary.Dictionary;
 
 /**
  * This is a dummy implementation for the DataAccessModule interface. Can be configured to create
@@ -41,8 +36,6 @@ public class DummyDataAccessModule implements DataAccessModule {
 
   private final DataAccessModuleListener listener;
 
-  private final Dictionary dict = Dictionary.get();
-
   private List<Long> iris = Collections.synchronizedList(new LinkedList<Long>());
 
   public DummyDataAccessModule(DataAccessModuleListener listener) {
@@ -52,6 +45,7 @@ public class DummyDataAccessModule implements DataAccessModule {
   public DummyDataAccessModule(Random random, DataAccessModuleListener listener) {
     this.random = random;
     this.listener = listener;
+
     log.debug("created");
   }
 
@@ -77,11 +71,8 @@ public class DummyDataAccessModule implements DataAccessModule {
     }
     log.debug("deref: " + iri.toString());
 
-    try {
-      deref(dict.convertIris(Lists.newArrayList(iri.toString())).get(0));
-    } catch (JMSException e) {
-      throw new DataAccessModuleException(e);
-    }
+    deref(0);
+
   }
 
   /*
