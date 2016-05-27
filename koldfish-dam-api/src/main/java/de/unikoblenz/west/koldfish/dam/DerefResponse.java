@@ -14,9 +14,9 @@ import de.unikoblenz.west.koldfish.messages.KoldfishMessage;
 public interface DerefResponse extends KoldfishMessage, Iterable<long[]> {
 
   /**
-   * returns IRI that has been dereferenced.
+   * returns encoded IRI that has been dereferenced.
    * 
-   * @return IRI that has been dereferenced.
+   * @return encoded IRI that has been dereferenced.
    */
-  public long getDerefIri();
+  public long getEncodedDerefIri();
 }

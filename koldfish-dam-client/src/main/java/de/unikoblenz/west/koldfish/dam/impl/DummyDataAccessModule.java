@@ -146,7 +146,7 @@ public class DummyDataAccessModule implements DataAccessModule {
                   }
 
                   @Override
-                  public long getDerefIri() {
+                  public long getEncodedDerefIri() {
                     return iri;
                   }
 

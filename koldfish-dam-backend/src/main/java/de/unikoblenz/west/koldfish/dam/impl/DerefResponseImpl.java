@@ -51,7 +51,7 @@ public class DerefResponseImpl implements DerefResponse {
    * @see de.unikoblenz.west.koldfish.dam.DerefResponse#getDerefIri()
    */
   @Override
-  public long getDerefIri() {
+  public long getEncodedDerefIri() {
     return compressedIri;
   }
 
