@@ -3,6 +3,9 @@
  */
 package de.unikoblenz.west.koldfish.dam.impl;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.jms.JMSException;
 
 import org.apache.jena.iri.IRI;
@@ -25,18 +28,24 @@ public class JmsDataAccessModule implements DataAccessModule {
 
   private static final Logger log = LogManager.getLogger(JmsDataAccessModule.class);
 
+  private final List<DataAccessModuleListener> listeners =
+      new LinkedList<DataAccessModuleListener>();
+
   /**
    * creates a new JmsDataAccessModule object with the given DataAccessModuleListener
-   * @param listener - listener for this JmsDataAccessModule object.
+   * 
    * @throws Exception triggered if connection to JMS could not be created.
    */
-  public JmsDataAccessModule(DataAccessModuleListener listener) throws Exception {
+  public JmsDataAccessModule() throws Exception {
     ConnectionManager.get().createTopic("dam.data", msg -> {
       if (msg instanceof DerefResponse) {
         DerefResponse derefResp = (DerefResponse) msg;
         log.debug("message: {}", derefResp);
 
-        listener.onDerefResponse(derefResp);
+        for (DataAccessModuleListener listener : listeners) {
+          listener.onDerefResponse(derefResp);
+        }
+
       }
     }).createTopic("dam.errors", msg -> {
       log.warn(msg);
@@ -95,5 +104,29 @@ public class JmsDataAccessModule implements DataAccessModule {
   @Override
   public void stop() throws Exception {
     ConnectionManager.get().close();
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * de.unikoblenz.west.koldfish.dam.DataAccessModule#addListener(de.unikoblenz.west.koldfish.dam
+   * .DataAccessModuleListener)
+   */
+  @Override
+  public void addListener(DataAccessModuleListener listener) {
+    throw new UnsupportedOperationException("implement addListener");
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * de.unikoblenz.west.koldfish.dam.DataAccessModule#removeListener(de.unikoblenz.west.koldfish
+   * .dam.DataAccessModuleListener)
+   */
+  @Override
+  public void removeListener(DataAccessModuleListener listener) {
+    throw new UnsupportedOperationException("implement removeListener");
   }
 }

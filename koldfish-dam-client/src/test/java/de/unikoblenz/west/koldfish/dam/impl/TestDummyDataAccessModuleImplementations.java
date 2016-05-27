@@ -61,8 +61,11 @@ public class TestDummyDataAccessModuleImplementations {
 
     // sets up the DAMListener
     dam =
-        rand instanceof Random ? new DummyDataAccessModule((Random) rand, getRandomDAMListener())
-            : new DummyDataAccessModule(null, getNoopDAMListener());
+        rand instanceof Random ? new DummyDataAccessModule((Random) rand)
+            : new DummyDataAccessModule();
+
+    // sets up listener
+    dam.addListener(rand instanceof Random ? getRandomDAMListener() : getNoopDAMListener());
   }
 
   // Listener to test random dummy

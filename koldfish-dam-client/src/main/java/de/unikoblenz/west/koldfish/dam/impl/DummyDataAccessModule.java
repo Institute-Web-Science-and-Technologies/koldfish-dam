@@ -34,17 +34,17 @@ public class DummyDataAccessModule implements DataAccessModule {
 
   private volatile boolean running = false;
 
-  private final DataAccessModuleListener listener;
+  private final List<DataAccessModuleListener> listeners =
+      new LinkedList<DataAccessModuleListener>();
 
   private List<Long> iris = Collections.synchronizedList(new LinkedList<Long>());
 
-  public DummyDataAccessModule(DataAccessModuleListener listener) {
-    this(null, listener);
+  public DummyDataAccessModule() {
+    this(null);
   }
 
-  public DummyDataAccessModule(Random random, DataAccessModuleListener listener) {
+  public DummyDataAccessModule(Random random) {
     this.random = random;
-    this.listener = listener;
 
     log.debug("created");
   }
@@ -154,7 +154,10 @@ public class DummyDataAccessModule implements DataAccessModule {
 
                 log.debug("send: " + res);
 
-                listener.onDerefResponse(res);
+                // inform listeners
+                for (DataAccessModuleListener listener : listeners) {
+                  listener.onDerefResponse(res);
+                }
 
                 Thread.sleep((random.nextInt(10) + 1) * 100);
               } catch (InterruptedException e) {
@@ -227,5 +230,29 @@ public class DummyDataAccessModule implements DataAccessModule {
       log.debug("close");
       t.join();
     }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * de.unikoblenz.west.koldfish.dam.DataAccessModule#addListener(de.unikoblenz.west.koldfish.dam
+   * .DataAccessModuleListener)
+   */
+  @Override
+  public void addListener(DataAccessModuleListener listener) {
+    listeners.add(listener);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * de.unikoblenz.west.koldfish.dam.DataAccessModule#removeListener(de.unikoblenz.west.koldfish
+   * .dam.DataAccessModuleListener)
+   */
+  @Override
+  public void removeListener(DataAccessModuleListener listener) {
+    listeners.remove(listener);
   }
 }

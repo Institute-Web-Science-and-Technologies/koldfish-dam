@@ -15,9 +15,6 @@ import org.apache.logging.log4j.Logger;
 
 import de.unikoblenz.west.koldfish.dam.DataAccessModule;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleException;
-import de.unikoblenz.west.koldfish.dam.DataAccessModuleListener;
-import de.unikoblenz.west.koldfish.dam.DerefResponse;
-import de.unikoblenz.west.koldfish.dam.ErrorResponse;
 import de.unikoblenz.west.koldfish.dam.impl.JmsDataAccessModule;
 
 /**
@@ -55,18 +52,7 @@ public class DataAccessModuleMain {
   private DataAccessModule dam;
   
   private DataAccessModuleMain() throws Exception {
-    DataAccessModule dam = new JmsDataAccessModule(new DataAccessModuleListener() {
-
-      @Override
-      public void onDerefResponse(DerefResponse response) {
-      }
-
-      @Override
-      public void onErrorResponse(ErrorResponse response) {
-        throw new UnsupportedOperationException("implement onErrorResponse");
-      }
-      
-    });
+    DataAccessModule dam = new JmsDataAccessModule();
     
     dam.start();
   }

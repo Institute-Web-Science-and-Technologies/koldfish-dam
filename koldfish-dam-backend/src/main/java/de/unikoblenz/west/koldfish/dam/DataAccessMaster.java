@@ -33,7 +33,6 @@ public class DataAccessMaster {
   private final Dictionary dictionary;
   private final EncodingParser parser;
 
-
   /**
    * starts the DataAccessManager
    * 
