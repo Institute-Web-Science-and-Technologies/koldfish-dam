@@ -95,6 +95,11 @@ public class DataAccessMaster {
     }
   }
 
+  /**
+   * handles a dereferenciation of an IRI as String.
+   * 
+   * @param iri - IRI to dereference.
+   */
   private void handleDeref(String iri) {
     if (iri == null) {
       throw new InvalidParameterException("iri is null");
