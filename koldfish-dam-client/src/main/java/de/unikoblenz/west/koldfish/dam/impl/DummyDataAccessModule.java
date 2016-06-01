@@ -3,6 +3,7 @@
  */
 package de.unikoblenz.west.koldfish.dam.impl;
 
+import java.security.InvalidParameterException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -71,7 +72,7 @@ public class DummyDataAccessModule implements DataAccessModule {
     }
     log.debug("deref: " + iri.toString());
 
-    deref(0);
+    deref(iri.toString().hashCode());
 
   }
 
@@ -82,6 +83,9 @@ public class DummyDataAccessModule implements DataAccessModule {
    */
   @Override
   public void deref(long encodedIri) throws DataAccessModuleException {
+    if (encodedIri == 0)
+      throw new InvalidParameterException("IRI encoding must not be 0");
+
     if (!running) {
       throw new DataAccessModuleException("DataAccessModule is not running!");
     }
@@ -133,8 +137,8 @@ public class DummyDataAccessModule implements DataAccessModule {
 
                 for (int i = 0; i < size; ++i) {
                   data.add(new long[] {iri, // subject
-                      nextLong(random, Long.MAX_VALUE - 1),// predicate
-                      nextLong(random, Long.MAX_VALUE - 1),// object
+                      nextLong(random, Long.MAX_VALUE - 2) + 1,// predicate
+                      nextLong(random, Long.MAX_VALUE - 2) + 1,// object
                       Long.MAX_VALUE // graph name
                   });
                 }

@@ -1,6 +1,7 @@
 package de.unikoblenz.west.koldfish.dam;
 
 import java.io.Serializable;
+import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -52,7 +53,6 @@ public class DataAccessMaster {
     } catch (JMSException | IndexOutOfBoundsException e) {
       log.error("could not initialized DAM", e);
     }
-
   }
 
   private DataAccessMaster(Dictionary dictionary, EncodingParser parser) {
@@ -81,34 +81,45 @@ public class DataAccessMaster {
 
               // is deref command?
               if (content instanceof DerefMessage) {
-                String iri = ((DerefMessage) content).getIRI();
-                log.debug("retrieving: {}", iri);
-
-                if (!service.isShutdown()) {
-                  CompletableFuture.supplyAsync(new HttpAccessWorker(dictionary, parser, iri),
-                      service).whenComplete((result, ex) -> {
-                    try {
-                      if (ex != null && ex instanceof ErrorResponse) {
-                        ConnectionManager.get().sendToTopic("dam.errors", (ErrorResponse) ex);
-                      } else {
-                        ConnectionManager.get().sendToTopic("dam.data", result);
-                      }
-                    } catch (Exception e) {
-                      log.error(e);
-                    }
-                  });
-                } else {
-                  log.error("executor already shut down");
-                }
+                handleDeref(((DerefMessage) content).getIRI());
+              } else if (content instanceof DerefEncodedMessage) {
+                handleDeref(DictionaryHelper.convertId(dictionary,
+                    ((DerefEncodedMessage) content).getEncodedIri()));
               }
             }
           } catch (Exception e) {
+            log.error("error during processing {}:", msg);
             log.error(e);
           }
         }
       }).start();
     } catch (JMSException e) {
       log.error(e);
+    }
+  }
+
+  private void handleDeref(String iri) {
+    if (iri == null) {
+      throw new InvalidParameterException("iri is null");
+    }
+
+    log.debug("retrieving: {}", iri);
+
+    if (!service.isShutdown()) {
+      CompletableFuture.supplyAsync(new HttpAccessWorker(dictionary, parser, iri), service)
+          .whenComplete((result, ex) -> {
+            try {
+              if (ex != null && ex instanceof ErrorResponse) {
+                ConnectionManager.get().sendToTopic("dam.errors", (ErrorResponse) ex);
+              } else {
+                ConnectionManager.get().sendToTopic("dam.data", result);
+              }
+            } catch (Exception e) {
+              log.error(e);
+            }
+          });
+    } else {
+      log.error("executor already shut down");
     }
   }
 

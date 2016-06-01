@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import de.unikoblenz.west.koldfish.dam.DataAccessModule;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleException;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleListener;
+import de.unikoblenz.west.koldfish.dam.DerefEncodedMessage;
 import de.unikoblenz.west.koldfish.dam.DerefMessage;
 import de.unikoblenz.west.koldfish.dam.DerefResponse;
 import de.unikoblenz.west.koldfish.fluid.ConnectionManager;
@@ -82,7 +83,7 @@ public class JmsDataAccessModule implements DataAccessModule {
     try {
       ConnectionManager.get().sendToQueue("dam.deref", new DerefMessage(iri.toString()));
     } catch (JMSException e) {
-      log.error(e);
+      throw new DataAccessModuleException(e);
     }
   }
 
@@ -93,7 +94,11 @@ public class JmsDataAccessModule implements DataAccessModule {
    */
   @Override
   public void deref(long compressedIri) throws DataAccessModuleException {
-    throw new UnsupportedOperationException("implement deref");
+    try {
+      ConnectionManager.get().sendToQueue("dam.deref", new DerefEncodedMessage(compressedIri));
+    } catch (JMSException e) {
+      throw new DataAccessModuleException(e);
+    }
   }
 
   /*

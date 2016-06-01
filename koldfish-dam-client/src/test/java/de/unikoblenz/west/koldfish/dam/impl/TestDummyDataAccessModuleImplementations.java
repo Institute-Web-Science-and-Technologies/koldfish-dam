@@ -8,6 +8,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
@@ -108,11 +109,13 @@ public class TestDummyDataAccessModuleImplementations {
   }
 
 
-  @Test
+
   /**
    * tests data streaming.
+   * 
    * @throws Exception thrown if something unforeseen happens
    */
+  @Test
   public void testDataStreaming() throws Exception {
     assertFalse(dam.isStarted());
 
@@ -133,11 +136,12 @@ public class TestDummyDataAccessModuleImplementations {
     assertFalse(dam.isStarted());
   }
 
-  @Test
   /**
    * tests DataAccessModule.deref() with a started DAM.
+   * 
    * @throws Exception thrown if something unforeseen happens
    */
+  @Test
   public void testDerefIri() throws Exception {
     assertFalse(dam.isStarted());
 
@@ -154,11 +158,13 @@ public class TestDummyDataAccessModuleImplementations {
     assertFalse(dam.isStarted());
   }
 
-  @Test
+
   /**
    * tests DataAccessModule.deref() with a started DAM.
+   * 
    * @throws Exception thrown if something unforeseen happens
    */
+  @Test
   public void testDerefId() throws Exception {
     assertFalse(dam.isStarted());
 
@@ -175,21 +181,42 @@ public class TestDummyDataAccessModuleImplementations {
     assertFalse(dam.isStarted());
   }
 
-  @Test(expected = DataAccessModuleException.class)
+
+  /**
+   * tests dereferencing of 0, leafs to InvalidParameterException
+   * 
+   * @throws Exception
+   */
+  @Test(expected = InvalidParameterException.class)
+  public void testZero() throws Exception {
+    try {
+      dam.start();
+
+      dam.deref(0);
+    } finally {
+      dam.stop();
+    }
+  }
+
+
   /**
    * tests DataAccessModule.deref() with a halted DAM, should throw an exception.
+   * 
    * @throws Exception should be thrown since DAM has not been started.
    */
+  @Test(expected = DataAccessModuleException.class)
   public void testUnstartedDerefIri() throws Exception {
     assertFalse(dam.isStarted());
     dam.deref(someIRI);
   }
 
-  @Test(expected = DataAccessModuleException.class)
+
   /**
    * tests DataAccessModule.deref() with a halted DAM, should throw an exception.
+   * 
    * @throws Exception should be thrown since DAM has not been started.
    */
+  @Test(expected = DataAccessModuleException.class)
   public void testUnstartedDerefId() throws Exception {
     assertFalse(dam.isStarted());
     dam.deref(100);
