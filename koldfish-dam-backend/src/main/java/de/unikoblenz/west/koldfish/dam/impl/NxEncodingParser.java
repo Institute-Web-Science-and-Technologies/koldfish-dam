@@ -17,6 +17,8 @@ import org.apache.logging.log4j.Logger;
 import org.semanticweb.yars.nx.Node;
 import org.semanticweb.yars.nx.parser.NxParser;
 
+import com.google.common.primitives.Longs;
+
 import de.unikoblenz.west.koldfish.dam.EncodingParser;
 import de.unikoblenz.west.koldfish.dictionary.Dictionary;
 
@@ -30,14 +32,16 @@ public class NxEncodingParser implements EncodingParser {
 
   private final NxParser parser = new NxParser();
   private final Dictionary dict;
+  private final long encodedDefaultNamespace;
 
   /**
    * creates a new NxEncodingParser object with given Dictionary.
    * 
    * @param dict - dictionary to encode IRIs and labels.
    */
-  public NxEncodingParser(Dictionary dict) {
+  public NxEncodingParser(Dictionary dict, long encodedDefaultNamespace) {
     this.dict = dict;
+    this.encodedDefaultNamespace = encodedDefaultNamespace;
   }
 
   /*
@@ -56,10 +60,17 @@ public class NxEncodingParser implements EncodingParser {
       nodes = it.next();
 
       List<String> nodeValues =
-          Arrays.asList(nodes).stream().map(n -> n.getLabel()).collect(Collectors.toList());
+          Arrays.asList(nodes).stream().map(Node::getLabel).collect(Collectors.toList());
 
       try {
-        result.add(dict.convertIris(nodeValues).stream().mapToLong(l -> l).toArray());
+        List<Long> convertedIris =
+            dict.convertIris(nodeValues).stream().collect(Collectors.toList());
+
+        if (convertedIris.size() == 3) {
+          convertedIris.add(encodedDefaultNamespace);
+        }
+
+        result.add(Longs.toArray(convertedIris));
       } catch (JMSException e) {
         log.error(e);
       }

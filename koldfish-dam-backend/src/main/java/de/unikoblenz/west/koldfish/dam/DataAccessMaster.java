@@ -1,6 +1,8 @@
 package de.unikoblenz.west.koldfish.dam;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,11 +43,16 @@ public class DataAccessMaster {
   public static void main(String[] args) {
     log.info("starting data access module");
 
-    Dictionary dict = Dictionary.get();
+    try {
+      Dictionary dict = Dictionary.get();
+      List<Long> defNamespace = dict.convertIris(Arrays.asList(""));
+      new DataAccessMaster(dict, new NxEncodingParser(dict, defNamespace.get(0)));
 
-    new DataAccessMaster(dict, new NxEncodingParser(dict));
+      log.debug("started");
+    } catch (JMSException | IndexOutOfBoundsException e) {
+      log.error("could not initialized DAM", e);
+    }
 
-    log.debug("started");
   }
 
   private DataAccessMaster(Dictionary dictionary, EncodingParser parser) {

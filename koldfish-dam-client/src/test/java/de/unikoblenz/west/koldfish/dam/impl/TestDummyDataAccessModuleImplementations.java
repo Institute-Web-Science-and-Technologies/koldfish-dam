@@ -3,6 +3,7 @@
  */
 package de.unikoblenz.west.koldfish.dam.impl;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -75,7 +76,8 @@ public class TestDummyDataAccessModuleImplementations {
       public void onDerefResponse(DerefResponse response) {
         log.debug(response);
         for (long[] item : response) {
-          assertTrue(item.length == 3 || item.length == 4);
+          assertEquals(4, item.length);// check for quadtruple
+          assertEquals(Long.MAX_VALUE, item[3]);// check graph name
           for (long id : item) {
             assertTrue(id > 0);
           }

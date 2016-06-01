@@ -25,13 +25,15 @@ import de.unikoblenz.west.koldfish.dictionary.Dictionary;
  */
 public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
 
+  private static final Header[] headers = new Header[] {
+      new BasicHeader("Accept", "text/turtle, application/rdf+xml, application/xml"),
+      new BasicHeader("User-Agent", "koldfish"), new BasicHeader("Accept-Encoding", "gzip")};
+
   private final String iri;
   private final Dictionary dict;
   private final EncodingParser parser;
 
-  private static final Header[] headers = new Header[] {
-      new BasicHeader("Accept", "text/turtle, application/rdf+xml, application/xml"),
-      new BasicHeader("User-Agent", "koldfish"), new BasicHeader("Accept-Encoding", "gzip")};
+
 
   public HttpAccessWorker(Dictionary dict, EncodingParser parser, String iri) {
     this.dict = dict;
@@ -55,7 +57,6 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
         HttpEntity entity = response.getEntity();
 
         try {
-
           return new DerefResponseImpl(dict.convertIris(Lists.newArrayList(iri)).get(0),
               parser.parse(entity.getContent()));
         } finally {

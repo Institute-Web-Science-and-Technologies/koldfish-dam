@@ -132,8 +132,11 @@ public class DummyDataAccessModule implements DataAccessModule {
                 List<long[]> data = new LinkedList<long[]>();
 
                 for (int i = 0; i < size; ++i) {
-                  data.add(new long[] {iri, nextLong(random, Long.MAX_VALUE),
-                      nextLong(random, Long.MAX_VALUE)});
+                  data.add(new long[] {iri, // subject
+                      nextLong(random, Long.MAX_VALUE - 1),// predicate
+                      nextLong(random, Long.MAX_VALUE - 1),// object
+                      Long.MAX_VALUE // graph name
+                  });
                 }
 
                 DerefResponse res = new DerefResponse() {

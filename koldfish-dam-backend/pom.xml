@@ -81,5 +81,10 @@
 			<artifactId>koldfish-dictionary-api</artifactId>
 			<version>0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava-collections</artifactId>
+			<version>r03</version>
+		</dependency>
 	</dependencies>
 </project>
