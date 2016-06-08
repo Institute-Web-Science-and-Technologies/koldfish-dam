@@ -18,6 +18,7 @@ import de.unikoblenz.west.koldfish.dam.DataAccessModuleListener;
 import de.unikoblenz.west.koldfish.dam.DerefEncodedMessage;
 import de.unikoblenz.west.koldfish.dam.DerefMessage;
 import de.unikoblenz.west.koldfish.dam.DerefResponse;
+import de.unikoblenz.west.koldfish.dam.ErrorResponse;
 import de.unikoblenz.west.koldfish.fluid.ConnectionManager;
 
 /**
@@ -50,6 +51,15 @@ public class JmsDataAccessModule implements DataAccessModule {
       }
     }).createTopic("dam.errors", msg -> {
       log.warn(msg);
+
+      if (msg instanceof ErrorResponse) {
+        ErrorResponse errorResp = (ErrorResponse) msg;
+
+        for (DataAccessModuleListener listener : listeners) {
+          listener.onErrorResponse(errorResp);
+        }
+      }
+
     });
   }
 
