@@ -120,7 +120,7 @@ public class JmsDataAccessModule implements DataAccessModule {
    */
   @Override
   public void addListener(DataAccessModuleListener listener) {
-    throw new UnsupportedOperationException("implement addListener");
+    listeners.add(listener);
   }
 
   /*
@@ -132,6 +132,6 @@ public class JmsDataAccessModule implements DataAccessModule {
    */
   @Override
   public void removeListener(DataAccessModuleListener listener) {
-    throw new UnsupportedOperationException("implement removeListener");
+    listeners.remove(listener);
   }
 }
