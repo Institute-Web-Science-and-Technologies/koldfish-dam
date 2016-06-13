@@ -23,7 +23,7 @@ In koldfish-dam, we use the following dependencies:
 - [Apache Http components] (http://hc.apache.org) to access sources via HTTM (Apache 2.0 License).
 - [Apache Log4j 2.x](logging.apache.org/log4j/2.x/) for logging (Apache 2.0 License).
 - [Apache Maven 3.3.X](maven.apache.org/) as build tool.
-- [junit](junit.org) for testing (Eclispe Public License 1.0)
+- [junit](junit.org) for testing (Eclipse Public License 1.0)
 - [Google Guava](https://github.com/google/guava) for improved concurrent processes (Apache 2.0 Lisence).
 
 

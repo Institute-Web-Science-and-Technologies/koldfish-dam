@@ -3,23 +3,21 @@
  */
 package de.unikoblenz.west.koldfish.dam.impl;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.jms.JMSException;
 
 import org.apache.jena.iri.IRI;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import de.unikoblenz.west.koldfish.dam.DataAccessModule;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleException;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleListener;
 import de.unikoblenz.west.koldfish.dam.DerefEncodedMessage;
 import de.unikoblenz.west.koldfish.dam.DerefMessage;
-import de.unikoblenz.west.koldfish.dam.DerefResponse;
-import de.unikoblenz.west.koldfish.dam.ErrorResponse;
-import de.unikoblenz.west.koldfish.fluid.ConnectionManager;
+import de.unikoblenz.west.koldfish.messaging.QueueSender;
+import de.unikoblenz.west.koldfish.serverSkeletons.RequestHandler;
 
 /**
  * DataAccessModule implementation for JMS
@@ -28,10 +26,13 @@ import de.unikoblenz.west.koldfish.fluid.ConnectionManager;
  */
 public class JmsDataAccessModule implements DataAccessModule {
 
-  private static final Logger log = LogManager.getLogger(JmsDataAccessModule.class);
-
   private final List<DataAccessModuleListener> listeners =
-      new LinkedList<DataAccessModuleListener>();
+      Collections.synchronizedList(new LinkedList<DataAccessModuleListener>());
+
+  private final QueueSender deref;
+  private final RequestHandler errors;
+  private final RequestHandler damOutput;
+
 
   /**
    * creates a new JmsDataAccessModule object with the given DataAccessModuleListener
@@ -39,28 +40,10 @@ public class JmsDataAccessModule implements DataAccessModule {
    * @throws Exception triggered if connection to JMS could not be created.
    */
   public JmsDataAccessModule() throws Exception {
-    ConnectionManager.get().createTopic("dam.data", msg -> {
-      if (msg instanceof DerefResponse) {
-        DerefResponse derefResp = (DerefResponse) msg;
-        log.debug("message: {}", derefResp);
+    deref = new QueueSender("admin", "admin", "tcp://141.26.208.203:61616", "dam.deref");
+    errors = new ErrorRequestHandler(listeners);
 
-        for (DataAccessModuleListener listener : listeners) {
-          listener.onDerefResponse(derefResp);
-        }
-
-      }
-    }).createTopic("dam.errors", msg -> {
-      log.warn(msg);
-
-      if (msg instanceof ErrorResponse) {
-        ErrorResponse errorResp = (ErrorResponse) msg;
-
-        for (DataAccessModuleListener listener : listeners) {
-          listener.onErrorResponse(errorResp);
-        }
-      }
-
-    });
+    damOutput = new DataRequestHandler(listeners);
   }
 
   /*
@@ -69,9 +52,7 @@ public class JmsDataAccessModule implements DataAccessModule {
    * @see de.unikoblenz.west.koldfish.dam.LifeCycle#start()
    */
   @Override
-  public void start() throws Exception {
-    ConnectionManager.get().start();
-  }
+  public void start() throws Exception {}
 
   /*
    * (non-Javadoc)
@@ -80,7 +61,7 @@ public class JmsDataAccessModule implements DataAccessModule {
    */
   @Override
   public boolean isStarted() {
-    return ConnectionManager.get().isConnectionActive();
+    return errors.isAlive() && damOutput.isAlive();
   }
 
   /*
@@ -91,7 +72,7 @@ public class JmsDataAccessModule implements DataAccessModule {
   @Override
   public void deref(IRI iri) throws DataAccessModuleException {
     try {
-      ConnectionManager.get().sendToQueue("dam.deref", new DerefMessage(iri.toString()));
+      deref.sendMessage(new DerefMessage(iri.toString()));
     } catch (JMSException e) {
       throw new DataAccessModuleException(e);
     }
@@ -105,7 +86,7 @@ public class JmsDataAccessModule implements DataAccessModule {
   @Override
   public void deref(long compressedIri) throws DataAccessModuleException {
     try {
-      ConnectionManager.get().sendToQueue("dam.deref", new DerefEncodedMessage(compressedIri));
+      deref.sendMessage(new DerefEncodedMessage(compressedIri));
     } catch (JMSException e) {
       throw new DataAccessModuleException(e);
     }
@@ -118,7 +99,9 @@ public class JmsDataAccessModule implements DataAccessModule {
    */
   @Override
   public void stop() throws Exception {
-    ConnectionManager.get().close();
+    deref.close();
+    errors.close();
+    damOutput.close();
   }
 
   /*
@@ -129,7 +112,7 @@ public class JmsDataAccessModule implements DataAccessModule {
    * .DataAccessModuleListener)
    */
   @Override
-  public void addListener(DataAccessModuleListener listener) {
+  public synchronized void addListener(DataAccessModuleListener listener) {
     listeners.add(listener);
   }
 
@@ -141,7 +124,7 @@ public class JmsDataAccessModule implements DataAccessModule {
    * .dam.DataAccessModuleListener)
    */
   @Override
-  public void removeListener(DataAccessModuleListener listener) {
+  public synchronized void removeListener(DataAccessModuleListener listener) {
     listeners.remove(listener);
   }
 }
