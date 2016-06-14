@@ -19,15 +19,15 @@ public class DerefResponseImpl implements DerefResponse {
   private static final long serialVersionUID = -7152350152296447000L;
 
   private final long compressedIri;
-  
+
   private LinkedList<long[]> data;
 
-  public DerefResponseImpl(long compressedIri) {
+  DerefResponseImpl(long compressedIri) {
     this.compressedIri = compressedIri;
     this.data = new LinkedList<long[]>();
   }
 
-  public DerefResponseImpl(long compressedIri, List<long[]> data) {
+  DerefResponseImpl(long compressedIri, List<long[]> data) {
     this.compressedIri = compressedIri;
     this.data = new LinkedList<long[]>(data);
   }
@@ -47,7 +47,9 @@ public class DerefResponseImpl implements DerefResponse {
     return "DerefResponseImpl [size=" + data.size() + "]";
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
+   * 
    * @see de.unikoblenz.west.koldfish.dam.DerefResponse#getDerefIri()
    */
   @Override

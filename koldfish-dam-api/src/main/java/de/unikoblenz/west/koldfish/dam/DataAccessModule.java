@@ -5,6 +5,7 @@ package de.unikoblenz.west.koldfish.dam;
 
 import org.apache.jena.iri.IRI;
 
+import de.unikoblenz.west.koldfish.LifeCycle;
 import de.unikoblenz.west.koldfish.services.KoldfishServiceAPI;
 
 /**

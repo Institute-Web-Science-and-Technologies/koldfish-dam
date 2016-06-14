@@ -15,6 +15,9 @@ import org.apache.logging.log4j.Logger;
 
 import de.unikoblenz.west.koldfish.dam.DataAccessModule;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleException;
+import de.unikoblenz.west.koldfish.dam.DataAccessModuleListener;
+import de.unikoblenz.west.koldfish.dam.DerefResponse;
+import de.unikoblenz.west.koldfish.dam.ErrorResponse;
 import de.unikoblenz.west.koldfish.dam.impl.JmsDataAccessModule;
 
 /**
@@ -24,43 +27,57 @@ import de.unikoblenz.west.koldfish.dam.impl.JmsDataAccessModule;
 public class DataAccessModuleMain {
 
   private static final Logger log = LogManager.getLogger(DataAccessModuleMain.class);
-  
+
   public static void main(String[] args) throws Exception {
-    if(args.length < 1) {
+    if (args.length < 1) {
       log.error("need URIs to deref");
       return;
-    }    
-    
+    }
+
     List<IRI> iris = new LinkedList<IRI>();
-    
-    for(String iri : args) {
+
+    for (String iri : args) {
       try {
         iris.add(IRIFactory.iriImplementation().construct(iri));
-      } catch(IRIException e) {
+      } catch (IRIException e) {
         log.warn("{} is not a proper IRI", iri);
       }
     }
-    
+
     DataAccessModuleMain main = new DataAccessModuleMain();
-    
+
     main.handle(iris);
-    
+
   }
-  
-  private volatile AtomicInteger uris;
-    
+
+  private volatile AtomicInteger uris = new AtomicInteger();
+
   private DataAccessModule dam;
-  
+
   private DataAccessModuleMain() throws Exception {
-    DataAccessModule dam = new JmsDataAccessModule();
-    
+    dam = new JmsDataAccessModule();
+
+    dam.addListener(new DataAccessModuleListener() {
+
+      @Override
+      public void onDerefResponse(DerefResponse response) {
+        log.info(response);
+      }
+
+      @Override
+      public void onErrorResponse(ErrorResponse response) {
+        log.error(response);
+      }
+
+    });
+
     dam.start();
   }
-  
+
   private void handle(List<IRI> iris) {
     uris.addAndGet(iris.size());
-    
-    for(IRI iri : iris) {
+
+    for (IRI iri : iris) {
       log.info("trying to deref IRI {}", iri);
       try {
         dam.deref(iri);
@@ -70,5 +87,5 @@ public class DataAccessModuleMain {
       }
     }
   }
-  
+
 }

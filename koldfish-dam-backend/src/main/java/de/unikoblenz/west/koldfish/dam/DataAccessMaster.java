@@ -1,14 +1,21 @@
 package de.unikoblenz.west.koldfish.dam;
 
-import javax.jms.JMSException;
+import java.security.InvalidParameterException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.unikoblenz.west.koldfish.dam.impl.DerefRequestHandler;
+import de.unikoblenz.west.koldfish.dam.impl.HttpAccessWorker;
 import de.unikoblenz.west.koldfish.dam.impl.NxEncodingParser;
 import de.unikoblenz.west.koldfish.dictionary.Dictionary;
-import de.unikoblenz.west.koldfish.messaging.TopicSender;
+import de.unikoblenz.west.koldfish.messages.KoldfishMessage;
+import de.unikoblenz.west.koldfish.messaging.ConnectionManager;
+import de.unikoblenz.west.koldfish.messaging.KoldfishMessageListener;
+import de.unikoblenz.west.koldfish.messaging.impl.ConnectionManagerImpl;
 
 /**
  * responsible for JMS connections and controls data access workers.
@@ -19,9 +26,10 @@ public class DataAccessMaster {
 
   private static final Logger log = LogManager.getLogger(DataAccessMaster.class);
 
-  private final DerefRequestHandler deref;
-  private final TopicSender errors;
-  private final TopicSender damOutput;
+  private final ExecutorService service = Executors.newCachedThreadPool();
+  private final ConnectionManager manager;
+  private final Dictionary dictionary;
+  private final EncodingParser parser;
 
   /**
    * starts the DataAccessManager
@@ -35,39 +43,91 @@ public class DataAccessMaster {
       Dictionary dict = new Dictionary();
 
       new DataAccessMaster(dict, new NxEncodingParser(dict, DictionaryHelper.convertIri(dict, "")));
-
-      log.debug("started");
     } catch (Exception e) {
       log.error("could not initialized DAM", e);
     }
   }
 
-  private DataAccessMaster(Dictionary dictionary, EncodingParser parser) throws JMSException {
+  private DataAccessMaster(Dictionary dictionary, EncodingParser parser) throws Exception {
+    this.dictionary = dictionary;
+    this.parser = parser;
 
-    errors = new TopicSender("admin", "admin", "tcp://141.26.208.203:61616", "dam.errors");
-    damOutput = new TopicSender("admin", "admin", "tcp://141.26.208.203:61616", "dam.data");
+    manager = new ConnectionManagerImpl();
+    manager.queueReceiver("dam.deref").addListener(new KoldfishMessageListener() {
 
-    deref = new DerefRequestHandler(dictionary, parser, errors, damOutput);
+      @Override
+      public void onMessage(KoldfishMessage msg) {
+        log.debug("received: {}", msg);
+        try {
+          if (msg instanceof DerefMessage) {
+            handleDeref(((DerefMessage) msg).getIRI());
+          } else if (msg instanceof DerefEncodedMessage) {
+            handleDeref(DictionaryHelper.convertId(dictionary,
+                ((DerefEncodedMessage) msg).getEncodedIri()));
+          }
+        } catch (Exception e) {
+          log.error("error during processing {}:", msg);
+          log.error(e);
+        }
+      }
 
+    });
 
+    log.debug("created");
+    manager.start();
 
-    Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+    log.debug("started");
+
   }
 
+  /**
+   * handles a dereferenciation of an IRI as String.
+   * 
+   * @param iri - IRI to dereference.
+   */
+  private void handleDeref(String iri) {
+    if (iri == null) {
+      throw new InvalidParameterException("iri is null");
+    }
 
+    log.debug("retrieving: {}", iri);
+
+    if (!service.isShutdown()) {
+      CompletableFuture.supplyAsync(new HttpAccessWorker(dictionary, parser, iri), service)
+          .whenComplete((result, ex) -> {
+            try {
+              if (ex != null && ex instanceof ErrorResponse) {
+                manager.sentToTopic("dam.errors", (ErrorResponse) ex);
+              } else {
+                manager.sentToTopic("dam.data", result);
+              }
+            } catch (Exception e) {
+              log.error(e);
+            }
+          });
+    } else {
+      log.error("executor already shut down");
+    }
+  }
 
   /**
    * closes this DataAccessManager.
    */
   public void close() {
     log.debug("closing");
-
     try {
-      deref.close();
-      errors.close();
-      damOutput.close();
+      manager.stop();
+
+      service.shutdown();
+      if (!service.awaitTermination(30, TimeUnit.SECONDS)) {
+        service.shutdownNow();
+
+      }
+
     } catch (Exception e) {
       log.error(e);
+    } finally {
+      log.debug("closed");
     }
   }
 }
