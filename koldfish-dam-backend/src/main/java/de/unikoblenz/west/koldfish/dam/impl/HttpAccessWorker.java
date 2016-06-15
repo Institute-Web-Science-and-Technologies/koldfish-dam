@@ -1,5 +1,8 @@
 package de.unikoblenz.west.koldfish.dam.impl;
 
+import java.io.InputStream;
+import java.util.List;
+
 import javax.jms.JMSException;
 
 import org.apache.http.Header;
@@ -25,15 +28,15 @@ import de.unikoblenz.west.koldfish.dictionary.Dictionary;
  */
 public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
 
-  private static final Header[] headers = new Header[] {
-      new BasicHeader("Accept", "text/turtle, application/rdf+xml, application/xml"),
-      new BasicHeader("User-Agent", "koldfish"), new BasicHeader("Accept-Encoding", "gzip")};
+  private static final Header[] headers =
+      new Header[] {new BasicHeader("Accept", "text/turtle, application/rdf+xml, application/xml"),
+          new BasicHeader("User-Agent", "koldfish"), // agent name
+          new BasicHeader("Accept-Encoding", "gzip")// gzip is allowed
+      };
 
   private final String iri;
   private final Dictionary dict;
   private final EncodingParser parser;
-
-
 
   public HttpAccessWorker(Dictionary dict, EncodingParser parser, String iri) {
     this.dict = dict;
@@ -53,12 +56,14 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
       httpget.setHeaders(headers);
 
       try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-
         HttpEntity entity = response.getEntity();
 
         try {
-          return new DerefResponseImpl(dict.convertIris(Lists.newArrayList(iri)).get(0),
-              parser.parse(entity.getContent()));
+          InputStream rdf = entity.getContent();
+
+          List<long[]> result = parser.parse(rdf);
+
+          return new DerefResponseImpl(dict.convertIris(Lists.newArrayList(iri)).get(0), result);
         } finally {
           EntityUtils.consumeQuietly(entity);
         }

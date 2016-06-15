@@ -19,7 +19,7 @@ public interface EncodingParser {
    * @param input - input stream with RDF data.
    * @return the given RDF data as list of long arrays, where each long is the compressed
    *         information.
-   * @throws Exception throws Exception if parsing not possible
+   * @throws ParserException throws Exception if parsing not possible
    */
-  public List<long[]> parse(InputStream input) throws Exception;
+  public List<long[]> parse(InputStream input) throws ParserException;
 }

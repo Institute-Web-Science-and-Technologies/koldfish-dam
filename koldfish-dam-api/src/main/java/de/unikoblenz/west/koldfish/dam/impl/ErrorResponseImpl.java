@@ -13,7 +13,7 @@ import de.unikoblenz.west.koldfish.dam.ErrorResponse;
  */
 public class ErrorResponseImpl extends Exception implements ErrorResponse {
 
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = -1383761794860945562L;
 
   private final long encodedIri;
 

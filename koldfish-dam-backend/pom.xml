@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>koldfish-dam-backend</artifactId>
 	<properties>
-		<versions.nxparser>2.3.3</versions.nxparser>
+	<versions.jena>3.1.0</versions.jena>
 	</properties>
 	<build>
 		<plugins>
@@ -70,23 +70,22 @@
 			<artifactId>koldfish-dictionary-api</artifactId>
 			<version>0.1</version>
 		</dependency>
-		<!-- nx parser -->
-		<dependency>
-			<groupId>org.semanticweb.yars</groupId>
-			<artifactId>nxparser</artifactId>
-			<version>${versions.nxparser}</version>
-			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>org.semanticweb.yars</groupId>
-			<artifactId>nxparser-parsers</artifactId>
-			<version>${versions.nxparser}</version>
-		</dependency>
 		<dependency>
 			<!-- guava -->
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>19.0</version>
+		</dependency>
+		<!-- Apache Jena -->
+		<dependency>
+			<groupId>org.apache.jena</groupId>
+			<artifactId>jena-core</artifactId>
+			<version>${versions.jena}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.jena</groupId>
+			<artifactId>jena-arq</artifactId>
+			<version>${versions.jena}</version>
 		</dependency>
 	</dependencies>
 </project>

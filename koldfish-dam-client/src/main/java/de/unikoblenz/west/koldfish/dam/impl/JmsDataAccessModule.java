@@ -48,6 +48,24 @@ public class JmsDataAccessModule implements DataAccessModule {
   public JmsDataAccessModule() throws Exception {
     manager = new ConnectionManagerImpl();
     manager.topicReceiver("dam.errors").addListener(new KoldfishMessageListener() {
+      @Override
+      public void onMessage(KoldfishMessage msg) {
+        log.debug(msg);
+
+        if (msg instanceof ErrorResponse) {
+          ErrorResponse errorResp = (ErrorResponse) msg;
+
+          synchronized (listeners) {
+            for (DataAccessModuleListener listener : listeners) {
+              listener.onErrorResponse(errorResp);
+            }
+          }
+        }
+      }
+
+    });
+    manager.topicReceiver("dam.data").addListener(new KoldfishMessageListener() {
+
 
       @Override
       public void onMessage(KoldfishMessage msg) {
@@ -63,23 +81,7 @@ public class JmsDataAccessModule implements DataAccessModule {
         }
       }
 
-    });
-    manager.topicReceiver("dam.data").addListener(new KoldfishMessageListener() {
 
-      @Override
-      public void onMessage(KoldfishMessage msg) {
-        log.warn(msg);
-
-        if (msg instanceof ErrorResponse) {
-          ErrorResponse errorResp = (ErrorResponse) msg;
-
-          synchronized (listeners) {
-            for (DataAccessModuleListener listener : listeners) {
-              listener.onErrorResponse(errorResp);
-            }
-          }
-        }
-      }
     });
 
   }
@@ -107,34 +109,6 @@ public class JmsDataAccessModule implements DataAccessModule {
   /*
    * (non-Javadoc)
    * 
-   * @see de.unikoblenz.west.koldfish.dam.DataAccessModule#deref(org.apache.jena.iri.IRI)
-   */
-  @Override
-  public void deref(IRI iri) throws DataAccessModuleException {
-    try {
-      manager.sentToQueue("dam.deref", new DerefMessage(iri.toString()));
-    } catch (JMSException e) {
-      throw new DataAccessModuleException(e);
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see de.unikoblenz.west.koldfish.dam.DataAccessModule#deref(long)
-   */
-  @Override
-  public void deref(long compressedIri) throws DataAccessModuleException {
-    try {
-      manager.sentToQueue("dam.deref", new DerefEncodedMessage(compressedIri));
-    } catch (JMSException e) {
-      throw new DataAccessModuleException(e);
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
    * @see de.unikoblenz.west.koldfish.dam.LifeCycle#stop()
    */
   @Override
@@ -145,13 +119,44 @@ public class JmsDataAccessModule implements DataAccessModule {
   /*
    * (non-Javadoc)
    * 
+   * @see de.unikoblenz.west.koldfish.dam.DataAccessModule#deref(org.apache.jena.iri.IRI)
+   */
+  @Override
+  public void deref(IRI iri) throws DataAccessModuleException {
+    deref(new DerefMessage(iri.toString()));
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see de.unikoblenz.west.koldfish.dam.DataAccessModule#deref(long)
+   */
+  @Override
+  public void deref(long compressedIri) throws DataAccessModuleException {
+    deref(new DerefEncodedMessage(compressedIri));
+  }
+
+  private void deref(KoldfishMessage msg) throws DataAccessModuleException {
+    try {
+      manager.sentToQueue("dam.deref", msg);
+    } catch (JMSException e) {
+      throw new DataAccessModuleException(e);
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see
    * de.unikoblenz.west.koldfish.dam.DataAccessModule#addListener(de.unikoblenz.west.koldfish.dam
    * .DataAccessModuleListener)
    */
   @Override
-  public synchronized void addListener(DataAccessModuleListener listener) {
-    listeners.add(listener);
+  public void addListener(DataAccessModuleListener listener) {
+    synchronized (listeners) {
+      listeners.add(listener);
+    }
+
   }
 
   /*
@@ -162,7 +167,9 @@ public class JmsDataAccessModule implements DataAccessModule {
    * .dam.DataAccessModuleListener)
    */
   @Override
-  public synchronized void removeListener(DataAccessModuleListener listener) {
-    listeners.remove(listener);
+  public void removeListener(DataAccessModuleListener listener) {
+    synchronized (listeners) {
+      listeners.remove(listener);
+    }
   }
 }

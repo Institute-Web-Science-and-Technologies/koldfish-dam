@@ -22,11 +22,6 @@ public class DerefResponseImpl implements DerefResponse {
 
   private LinkedList<long[]> data;
 
-  DerefResponseImpl(long compressedIri) {
-    this.compressedIri = compressedIri;
-    this.data = new LinkedList<long[]>();
-  }
-
   DerefResponseImpl(long compressedIri, List<long[]> data) {
     this.compressedIri = compressedIri;
     this.data = new LinkedList<long[]>(data);

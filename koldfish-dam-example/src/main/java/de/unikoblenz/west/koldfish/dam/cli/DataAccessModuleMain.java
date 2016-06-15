@@ -3,6 +3,7 @@
  */
 package de.unikoblenz.west.koldfish.dam.cli;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,7 +62,9 @@ public class DataAccessModuleMain {
 
       @Override
       public void onDerefResponse(DerefResponse response) {
-        log.info(response);
+        for (long[] items : response) {
+          log.debug(Arrays.toString(items));
+        }
       }
 
       @Override

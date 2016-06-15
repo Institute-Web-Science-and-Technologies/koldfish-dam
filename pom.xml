@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>koldfish-dam</artifactId>
 	<packaging>pom</packaging>
-	<name>KoLDfish Data Aquisition Module</name>
+	<name>Koldfish Data Aquisition Module</name>
 	<properties>
 		<!-- properties -->
 		<versions.log4j>2.5</versions.log4j>
