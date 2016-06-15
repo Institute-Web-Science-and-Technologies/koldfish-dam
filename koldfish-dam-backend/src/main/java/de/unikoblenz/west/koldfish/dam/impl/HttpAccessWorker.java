@@ -13,6 +13,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
 
@@ -28,6 +30,9 @@ import de.unikoblenz.west.koldfish.dictionary.Dictionary;
  */
 public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
 
+
+  private static final Logger log = LogManager.getLogger(HttpAccessWorker.class);
+
   private static final Header[] headers =
       new Header[] {new BasicHeader("Accept", "text/turtle, application/rdf+xml, application/xml"),
           new BasicHeader("User-Agent", "koldfish"), // agent name
@@ -42,6 +47,8 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
     this.dict = dict;
     this.iri = iri;
     this.parser = parser;
+
+    log.debug("accessing: {}", iri);
   }
 
   /*
@@ -61,7 +68,11 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
         try {
           InputStream rdf = entity.getContent();
 
+          log.debug("retrieved data");
+
           List<long[]> result = parser.parse(rdf);
+
+          log.debug("data converted");
 
           return new DerefResponseImpl(dict.convertIris(Lists.newArrayList(iri)).get(0), result);
         } finally {
