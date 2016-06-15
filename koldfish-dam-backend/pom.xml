@@ -11,38 +11,6 @@
 		<versions.nxparser>2.3.3</versions.nxparser>
 	</properties>
 	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<!-- add sources to jar -->
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>3.0.0</version>
-					<executions>
-						<execution>
-							<id>attach-sources</id>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<!-- add javadoc to jar -->
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.9</version>
-					<executions>
-						<execution>
-							<id>attach-javadocs</id>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 		<plugins>
 			<plugin>
 				<!-- maven assembly -->
@@ -62,7 +30,6 @@
 		</plugins>
 	</build>
 	<dependencies>
-
 		<!-- Apache ActiveMQ -->
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
@@ -87,6 +54,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!-- koldfish -->
 		<dependency>
 			<groupId>de.unikoblenz.west.koldfish</groupId>
 			<artifactId>koldfish-messaging</artifactId>
@@ -97,6 +65,12 @@
 			<artifactId>koldfish-dam-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>de.unikoblenz.west.koldfish</groupId>
+			<artifactId>koldfish-dictionary-api</artifactId>
+			<version>0.1</version>
+		</dependency>
+		<!-- nx parser -->
 		<dependency>
 			<groupId>org.semanticweb.yars</groupId>
 			<artifactId>nxparser</artifactId>
@@ -109,14 +83,10 @@
 			<version>${versions.nxparser}</version>
 		</dependency>
 		<dependency>
-			<groupId>de.unikoblenz.west.koldfish</groupId>
-			<artifactId>koldfish-dictionary-api</artifactId>
-			<version>0.1</version>
-		</dependency>
-		<dependency>
+			<!-- guava -->
 			<groupId>com.google.guava</groupId>
-			<artifactId>guava-collections</artifactId>
-			<version>r03</version>
+			<artifactId>guava</artifactId>
+			<version>19.0</version>
 		</dependency>
 	</dependencies>
 </project>

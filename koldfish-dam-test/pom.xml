@@ -1,83 +1,31 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>de.unikoblenz.west.koldfish</groupId>
-    <artifactId>koldfish-dam</artifactId>
-    <version>0.0.1</version>
-  </parent>
-  <artifactId>koldfish-dam-test</artifactId>
-  <name>Tests for Koldfish DAM</name>
-  <properties>
-		<!-- properties -->
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-	<build>
-		<pluginManagement>
-			<!-- build -->
-			<plugins>
-				<plugin>
-					<!--Set Java 8 -->
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.5</version>
-					<configuration>
-						<source>1.8</source>
-						<target>1.8</target>
-					</configuration>
-				</plugin>
-				<plugin>
-					<!-- add sources to jar -->
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>3.0.0</version>
-					<executions>
-						<execution>
-							<id>attach-sources</id>
-							<goals><goal>jar</goal></goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<!-- add javadoc to jar -->
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.9</version>
-					<executions>
-						<execution>
-							<id>attach-javadocs</id>
-							<goals><goal>jar</goal></goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<groupId>org.sonatype.plugins</groupId>
-					<artifactId>nexus-staging-maven-plugin</artifactId>
-					<version>1.5.1</version>
-					<executions>
-						<execution>
-							<id>default-deploy</id>
-							<phase>deploy</phase>
-							<goals><goal>deploy</goal></goals>
-						</execution>
-					</executions>
-					<configuration>
-						<serverId>koldfish-maven</serverId>
-						<skipStaging>true</skipStaging>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
-  <dependencies>
-  <dependency>
-  	<groupId>de.unikoblenz.west.koldfish</groupId>
-  	<artifactId>koldfish-dam-api</artifactId>
-  	<version>0.0.1</version>
-  </dependency>
-  <dependency>
-  	<groupId>de.unikoblenz.west.koldfish</groupId>
-  	<artifactId>koldfish-dam-client</artifactId>
-  	<version>0.0.1</version>
-  </dependency>
-  </dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>de.unikoblenz.west.koldfish</groupId>
+		<artifactId>koldfish-dam</artifactId>
+		<version>0.0.1</version>
+	</parent>
+	<artifactId>koldfish-dam-test</artifactId>
+	<name>Tests for Koldfish DAM</name>
+	<dependencies>
+		<dependency>
+			<!-- junit -->
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- Koldfish -->
+		<dependency>
+			<groupId>de.unikoblenz.west.koldfish</groupId>
+			<artifactId>koldfish-dam-api</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>de.unikoblenz.west.koldfish</groupId>
+			<artifactId>koldfish-dam-client</artifactId>
+			<version>0.0.1</version>
+		</dependency>
+	</dependencies>
 </project>

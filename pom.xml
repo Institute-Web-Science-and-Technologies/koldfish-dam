@@ -2,42 +2,18 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<!-- General -->
 	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>de.unikoblenz.west.koldfish</groupId>
+		<artifactId>koldfish</artifactId>
+		<version>0.0.1</version>
+	</parent>
 	<artifactId>koldfish-dam</artifactId>
 	<packaging>pom</packaging>
 	<name>KoLDfish Data Aquisition Module</name>
-	<parent>
-	<groupId>de.unikoblenz.west.koldfish</groupId>
-	<artifactId>koldfish</artifactId>
-	<version>0.0.1</version>
-	</parent>
 	<properties>
 		<!-- properties -->
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<versions.log4j>2.5</versions.log4j>
 	</properties>
-	<build>
-		<pluginManagement>
-			<!-- build -->
-			<plugins>
-				<plugin>
-					<groupId>org.sonatype.plugins</groupId>
-					<artifactId>nexus-staging-maven-plugin</artifactId>
-					<version>1.5.1</version>
-					<executions>
-						<execution>
-							<id>default-deploy</id>
-							<phase>deploy</phase>
-							<goals><goal>deploy</goal></goals>
-						</execution>
-					</executions>
-					<configuration>
-						<serverId>koldfish-maven</serverId>
-						<skipStaging>true</skipStaging>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
 	<dependencies>
 		<!-- log4j 2 -->
 		<dependency>
@@ -51,21 +27,16 @@
 			<version>${versions.log4j}</version>
 		</dependency>
 		<dependency>
+			<!-- legacy bridge -->
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-1.2-api</artifactId>
 			<version>${versions.log4j}</version>
 		</dependency>
 		<dependency>
+			<!-- slf4j bridge -->
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<version>${versions.log4j}</version>
-		</dependency>
-		<!-- junit, for testing -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<!-- koldfish messaging -->
@@ -74,7 +45,7 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<!-- JMS, java messaging service -->
+			<!-- JMS 1.1, java messaging service -->
 			<groupId>org.apache.geronimo.specs</groupId>
 			<artifactId>geronimo-jms_1.1_spec</artifactId>
 			<version>1.1.1</version>

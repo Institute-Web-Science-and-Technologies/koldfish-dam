@@ -8,42 +8,9 @@
 	</parent>
 	<artifactId>koldfish-dam-api</artifactId>
 	<name>Koldfish Data Access Module API</name>
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<!-- add sources to jar -->
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>3.0.0</version>
-					<executions>
-						<execution>
-							<id>attach-sources</id>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<!-- add javadoc to jar -->
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.9</version>
-					<executions>
-						<execution>
-							<id>attach-javadocs</id>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
 	<dependencies>
 		<dependency>
+			<!-- Jena IRI API -->
 			<groupId>org.apache.jena</groupId>
 			<artifactId>jena-iri</artifactId>
 			<version>3.0.1</version>
