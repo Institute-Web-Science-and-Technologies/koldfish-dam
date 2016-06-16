@@ -27,8 +27,8 @@ import org.junit.runners.Parameterized.Parameters;
 import de.unikoblenz.west.koldfish.dam.DataAccessModule;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleException;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleListener;
-import de.unikoblenz.west.koldfish.dam.DerefResponse;
 import de.unikoblenz.west.koldfish.dam.ErrorResponse;
+import de.unikoblenz.west.koldfish.messages.DerefResponse;
 
 /**
  * testing the DummyDataAccessModuleListener, with random answers and without
@@ -39,8 +39,8 @@ import de.unikoblenz.west.koldfish.dam.ErrorResponse;
 @RunWith(Parameterized.class)
 public class TestDummyDataAccessModuleImplementations {
 
-  private static final Logger log = LogManager
-      .getLogger(TestDummyDataAccessModuleImplementations.class);
+  private static final Logger log =
+      LogManager.getLogger(TestDummyDataAccessModuleImplementations.class);
 
   private final IRI someIRI = IRIFactory.iriImplementation().create("http://dbpedia.org/");
 
@@ -48,7 +48,7 @@ public class TestDummyDataAccessModuleImplementations {
   public static Collection<Object> data() {
     return Arrays.asList(new Random(1000), // with randomizer
         new Object() // without randomizer, just no op
-        );
+    );
   }
 
   @Parameter
@@ -62,9 +62,8 @@ public class TestDummyDataAccessModuleImplementations {
 
 
     // sets up the DAMListener
-    dam =
-        rand instanceof Random ? new DummyDataAccessModule((Random) rand)
-            : new DummyDataAccessModule();
+    dam = rand instanceof Random ? new DummyDataAccessModule((Random) rand)
+        : new DummyDataAccessModule();
 
     // sets up listener
     dam.addListener(rand instanceof Random ? getRandomDAMListener() : getNoopDAMListener());

@@ -9,10 +9,12 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.unikoblenz.west.koldfish.dam.impl.ErrorResponseImpl;
+import de.unikoblenz.west.koldfish.dam.impl.ErrorWorkerImpl;
 import de.unikoblenz.west.koldfish.dam.impl.HttpAccessWorker;
 import de.unikoblenz.west.koldfish.dam.impl.JenaEncodingParser;
 import de.unikoblenz.west.koldfish.dictionary.Dictionary;
+import de.unikoblenz.west.koldfish.messages.DerefEncodedIriMessage;
+import de.unikoblenz.west.koldfish.messages.DerefIriMessage;
 import de.unikoblenz.west.koldfish.messages.KoldfishMessage;
 import de.unikoblenz.west.koldfish.messaging.ConnectionManager;
 import de.unikoblenz.west.koldfish.messaging.KoldfishMessageListener;
@@ -43,7 +45,8 @@ public class DataAccessMaster {
     try {
       Dictionary dict = new Dictionary();
 
-      new DataAccessMaster(dict, new JenaEncodingParser(dict, DictionaryHelper.convertIri(dict, "")));
+      new DataAccessMaster(dict,
+          new JenaEncodingParser(dict, DictionaryHelper.convertIri(dict, "")));
     } catch (Exception e) {
       log.error("could not initialized DAM", e);
     }
@@ -60,11 +63,11 @@ public class DataAccessMaster {
       public void onMessage(KoldfishMessage msg) {
         log.debug("received: {}", msg);
         try {
-          if (msg instanceof DerefMessage) {
-            handleDeref(((DerefMessage) msg).getIRI());
-          } else if (msg instanceof DerefEncodedMessage) {
+          if (msg instanceof DerefIriMessage) {
+            handleDeref(((DerefIriMessage) msg).getIRI());
+          } else if (msg instanceof DerefEncodedIriMessage) {
             handleDeref(DictionaryHelper.convertId(dictionary,
-                ((DerefEncodedMessage) msg).getEncodedIri()));
+                ((DerefEncodedIriMessage) msg).getEncodedIri()));
           }
         } catch (Exception e) {
           log.error("error during processing {}:", msg);
@@ -97,12 +100,14 @@ public class DataAccessMaster {
       CompletableFuture.supplyAsync(new HttpAccessWorker(dictionary, parser, iri), service)
           .whenComplete((result, ex) -> {
             try {
-              if (ex != null && ex instanceof ErrorResponseImpl) {
-                log.debug(ex);
-                manager.sentToTopic("dam.errors", (ErrorResponseImpl) ex);
-              } else {
-                log.debug(result);
+              if (ex != null) {
+                service.execute(new ErrorWorkerImpl(dictionary, manager, iri, ex));
+              } else if (result != null) {
+                log.debug("success, result: {}", result);
                 manager.sentToTopic("dam.data", result);
+              } else {
+                service.execute(new ErrorWorkerImpl(dictionary, manager, iri,
+                    new Exception("something went wrong")));
               }
             } catch (Exception e) {
               log.error(e);
@@ -132,5 +137,10 @@ public class DataAccessMaster {
     } finally {
       log.debug("closed");
     }
+  }
+
+  @Override
+  public String toString() {
+    return "DataAccessMaster []";
   }
 }

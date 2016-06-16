@@ -5,7 +5,6 @@ package de.unikoblenz.west.koldfish.dam.impl;
 
 import java.security.InvalidParameterException;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -17,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 import de.unikoblenz.west.koldfish.dam.DataAccessModule;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleException;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleListener;
-import de.unikoblenz.west.koldfish.dam.DerefResponse;
+import de.unikoblenz.west.koldfish.messages.DerefResponse;
 
 /**
  * This is a dummy implementation for the DataAccessModule interface. Can be configured to create
@@ -137,27 +136,13 @@ public class DummyDataAccessModule implements DataAccessModule {
 
                 for (int i = 0; i < size; ++i) {
                   data.add(new long[] {iri, // subject
-                      nextLong(random, Long.MAX_VALUE - 2) + 1,// predicate
-                      nextLong(random, Long.MAX_VALUE - 2) + 1,// object
+                      nextLong(random, Long.MAX_VALUE - 2) + 1, // predicate
+                      nextLong(random, Long.MAX_VALUE - 2) + 1, // object
                       Long.MAX_VALUE // graph name
                   });
                 }
 
-                DerefResponse res = new DerefResponse() {
-
-                  private static final long serialVersionUID = 1L;
-
-                  @Override
-                  public Iterator<long[]> iterator() {
-                    return data.iterator();
-                  }
-
-                  @Override
-                  public long getEncodedDerefIri() {
-                    return iri;
-                  }
-
-                };
+                DerefResponse res = new DerefResponse(iri, data);
 
                 log.debug("send: " + res);
 

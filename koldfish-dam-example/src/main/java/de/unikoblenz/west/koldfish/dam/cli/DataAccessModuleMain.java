@@ -17,9 +17,9 @@ import org.apache.logging.log4j.Logger;
 import de.unikoblenz.west.koldfish.dam.DataAccessModule;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleException;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleListener;
-import de.unikoblenz.west.koldfish.dam.DerefResponse;
 import de.unikoblenz.west.koldfish.dam.ErrorResponse;
 import de.unikoblenz.west.koldfish.dam.impl.JmsDataAccessModule;
+import de.unikoblenz.west.koldfish.messages.DerefResponse;
 
 /**
  * @author lkastler
@@ -30,11 +30,6 @@ public class DataAccessModuleMain {
   private static final Logger log = LogManager.getLogger(DataAccessModuleMain.class);
 
   public static void main(String[] args) throws Exception {
-    if (args.length < 1) {
-      log.error("need URIs to deref");
-      return;
-    }
-
     List<IRI> iris = new LinkedList<IRI>();
 
     for (String iri : args) {

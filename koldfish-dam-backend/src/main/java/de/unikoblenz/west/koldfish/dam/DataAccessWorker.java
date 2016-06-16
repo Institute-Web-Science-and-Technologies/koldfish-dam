@@ -9,5 +9,4 @@ import java.util.function.Supplier;
  * @author lkastler
  */
 public interface DataAccessWorker<T> extends Callable<T>, Supplier<T> {
-
 }

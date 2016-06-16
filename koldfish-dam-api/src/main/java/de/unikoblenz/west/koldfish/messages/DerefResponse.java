@@ -1,20 +1,18 @@
 /**
  * 
  */
-package de.unikoblenz.west.koldfish.dam.impl;
+package de.unikoblenz.west.koldfish.messages;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import de.unikoblenz.west.koldfish.dam.DerefResponse;
 
 /**
  * implementation for DerefResponse
  * 
  * @author lkastler
  */
-public class DerefResponseImpl implements DerefResponse {
+public class DerefResponse implements KoldfishMessage, Iterable<long[]> {
 
   private static final long serialVersionUID = -7152350152296447000L;
 
@@ -22,7 +20,7 @@ public class DerefResponseImpl implements DerefResponse {
 
   private LinkedList<long[]> data;
 
-  DerefResponseImpl(long compressedIri, List<long[]> data) {
+  public DerefResponse(long compressedIri, List<long[]> data) {
     this.compressedIri = compressedIri;
     this.data = new LinkedList<long[]>(data);
   }
@@ -39,15 +37,9 @@ public class DerefResponseImpl implements DerefResponse {
 
   @Override
   public String toString() {
-    return "DerefResponseImpl [size=" + data.size() + "]";
+    return "DerefResponse [compressedIri=" + compressedIri + ", size=" + data.size() + "]";
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see de.unikoblenz.west.koldfish.dam.DerefResponse#getDerefIri()
-   */
-  @Override
   public long getEncodedDerefIri() {
     return compressedIri;
   }

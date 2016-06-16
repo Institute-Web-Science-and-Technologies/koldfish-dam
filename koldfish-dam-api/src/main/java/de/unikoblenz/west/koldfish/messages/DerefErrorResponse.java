@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.unikoblenz.west.koldfish.dam.impl;
+package de.unikoblenz.west.koldfish.messages;
 
 import de.unikoblenz.west.koldfish.dam.ErrorResponse;
 
@@ -11,23 +11,23 @@ import de.unikoblenz.west.koldfish.dam.ErrorResponse;
  * @author lkastler
  *
  */
-public class ErrorResponseImpl extends Exception implements ErrorResponse {
+public class DerefErrorResponse extends Exception implements ErrorResponse {
 
   private static final long serialVersionUID = -1383761794860945562L;
 
   private final long encodedIri;
 
-  public ErrorResponseImpl(long encodedIri, String message, Throwable cause) {
+  public DerefErrorResponse(long encodedIri, String message, Throwable cause) {
     super(message, cause);
     this.encodedIri = encodedIri;
   }
 
-  public ErrorResponseImpl(long encodedIri, String message) {
+  public DerefErrorResponse(long encodedIri, String message) {
     super(message);
     this.encodedIri = encodedIri;
   }
 
-  public ErrorResponseImpl(long encodedIri, Throwable cause) {
+  public DerefErrorResponse(long encodedIri, Throwable cause) {
     super(cause);
     this.encodedIri = encodedIri;
   }
@@ -54,7 +54,7 @@ public class ErrorResponseImpl extends Exception implements ErrorResponse {
 
   @Override
   public String toString() {
-    return "ErrorResponseImpl [compressedIri=" + encodedIri + ", message()=" + getMessage() + "]";
+    return "ErrorResponse [compressedIri=" + encodedIri + ", message()=" + getMessage() + "]";
   }
 
 

@@ -3,8 +3,6 @@ package de.unikoblenz.west.koldfish.dam.impl;
 import java.io.InputStream;
 import java.util.List;
 
-import javax.jms.JMSException;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -19,9 +17,10 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.Lists;
 
 import de.unikoblenz.west.koldfish.dam.DataAccessWorker;
-import de.unikoblenz.west.koldfish.dam.DerefResponse;
 import de.unikoblenz.west.koldfish.dam.EncodingParser;
+import de.unikoblenz.west.koldfish.dam.ParserException;
 import de.unikoblenz.west.koldfish.dictionary.Dictionary;
+import de.unikoblenz.west.koldfish.messages.DerefResponse;
 
 /**
  * DataAccessWorker for HTTP calls with RDF encoding.
@@ -29,8 +28,6 @@ import de.unikoblenz.west.koldfish.dictionary.Dictionary;
  * @author lkastler
  */
 public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
-
-
   private static final Logger log = LogManager.getLogger(HttpAccessWorker.class);
 
   private static final Header[] headers =
@@ -57,34 +54,42 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
    * @see java.util.concurrent.Callable#call()
    */
   @Override
-  public DerefResponse call() throws ErrorResponseImpl {
+  public DerefResponse call() throws Exception {
     try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
       HttpGet httpget = new HttpGet(iri);
       httpget.setHeaders(headers);
 
-      try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-        HttpEntity entity = response.getEntity();
+      try (CloseableHttpResponse response = httpclient.execute(httpget);) {
 
+        log.debug("status line: {}", response.getStatusLine());
+
+        HttpEntity entity = response.getEntity();
+        if (entity == null) {
+          throw new Exception("received nothing from: " + iri);
+        }
         try {
           InputStream rdf = entity.getContent();
 
-          log.debug("retrieved data");
+          log.debug("data retrieved");
 
-          List<long[]> result = parser.parse(rdf);
+          try {
+            List<long[]> result = parser.parse(iri, rdf);
+            log.debug("data parsed");
 
-          log.debug("data converted");
-
-          return new DerefResponseImpl(dict.convertIris(Lists.newArrayList(iri)).get(0), result);
+            return new DerefResponse(dict.convertIris(Lists.newArrayList(iri)).get(0), result);
+          } catch (ParserException e) {
+            throw e;
+          }
+        } catch (Exception e) {
+          throw e;
         } finally {
           EntityUtils.consumeQuietly(entity);
         }
+      } catch (Exception e) {
+        throw e;
       }
     } catch (Exception e) {
-      try {
-        throw new ErrorResponseImpl(dict.convertIris(Lists.newArrayList(iri)).get(0), e);
-      } catch (JMSException e1) {
-        throw new ErrorResponseImpl(-1, e1);
-      }
+      throw e;
     }
   }
 

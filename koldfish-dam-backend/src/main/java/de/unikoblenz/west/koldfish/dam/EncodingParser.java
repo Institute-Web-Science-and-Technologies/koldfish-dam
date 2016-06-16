@@ -21,5 +21,5 @@ public interface EncodingParser {
    *         information.
    * @throws ParserException throws Exception if parsing not possible
    */
-  public List<long[]> parse(InputStream input) throws ParserException;
+  public List<long[]> parse(String iri, InputStream input) throws ParserException;
 }

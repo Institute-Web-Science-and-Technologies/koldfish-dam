@@ -10,16 +10,14 @@ import java.util.List;
 import javax.jms.JMSException;
 
 import org.apache.jena.iri.IRI;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import de.unikoblenz.west.koldfish.dam.DataAccessModule;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleException;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleListener;
-import de.unikoblenz.west.koldfish.dam.DerefEncodedMessage;
-import de.unikoblenz.west.koldfish.dam.DerefMessage;
-import de.unikoblenz.west.koldfish.dam.DerefResponse;
 import de.unikoblenz.west.koldfish.dam.ErrorResponse;
+import de.unikoblenz.west.koldfish.messages.DerefEncodedIriMessage;
+import de.unikoblenz.west.koldfish.messages.DerefIriMessage;
+import de.unikoblenz.west.koldfish.messages.DerefResponse;
 import de.unikoblenz.west.koldfish.messages.KoldfishMessage;
 import de.unikoblenz.west.koldfish.messaging.ConnectionManager;
 import de.unikoblenz.west.koldfish.messaging.KoldfishMessageListener;
@@ -31,8 +29,6 @@ import de.unikoblenz.west.koldfish.messaging.impl.ConnectionManagerImpl;
  * @author lkastler
  */
 public class JmsDataAccessModule implements DataAccessModule {
-
-  private static final Logger log = LogManager.getLogger(JmsDataAccessModule.class);
 
   private final List<DataAccessModuleListener> listeners =
       Collections.synchronizedList(new LinkedList<DataAccessModuleListener>());
@@ -50,8 +46,6 @@ public class JmsDataAccessModule implements DataAccessModule {
     manager.topicReceiver("dam.errors").addListener(new KoldfishMessageListener() {
       @Override
       public void onMessage(KoldfishMessage msg) {
-        log.debug(msg);
-
         if (msg instanceof ErrorResponse) {
           ErrorResponse errorResp = (ErrorResponse) msg;
 
@@ -71,7 +65,6 @@ public class JmsDataAccessModule implements DataAccessModule {
       public void onMessage(KoldfishMessage msg) {
         if (msg instanceof DerefResponse) {
           DerefResponse derefResp = (DerefResponse) msg;
-          log.debug("message: {}", derefResp);
 
           synchronized (listeners) {
             for (DataAccessModuleListener listener : listeners) {
@@ -123,7 +116,7 @@ public class JmsDataAccessModule implements DataAccessModule {
    */
   @Override
   public void deref(IRI iri) throws DataAccessModuleException {
-    deref(new DerefMessage(iri.toString()));
+    deref(new DerefIriMessage(iri.toString()));
   }
 
   /*
@@ -133,7 +126,7 @@ public class JmsDataAccessModule implements DataAccessModule {
    */
   @Override
   public void deref(long compressedIri) throws DataAccessModuleException {
-    deref(new DerefEncodedMessage(compressedIri));
+    deref(new DerefEncodedIriMessage(compressedIri));
   }
 
   private void deref(KoldfishMessage msg) throws DataAccessModuleException {

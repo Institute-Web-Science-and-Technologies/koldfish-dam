@@ -4,6 +4,8 @@
  */
 package de.unikoblenz.west.koldfish.dam;
 
+import de.unikoblenz.west.koldfish.messages.DerefResponse;
+
 /**
  * interface to listen on a DataAccessModule object, handling all incoming information.
  * 
