@@ -40,6 +40,11 @@ public class DerefResponse implements KoldfishMessage, Iterable<long[]> {
     return "DerefResponse [compressedIri=" + compressedIri + ", size=" + data.size() + "]";
   }
 
+  /**
+   * returns the encoded dereferenced IRI.
+   * 
+   * @return the encoded dereferenced IRI.
+   */
   public long getEncodedDerefIri() {
     return compressedIri;
   }

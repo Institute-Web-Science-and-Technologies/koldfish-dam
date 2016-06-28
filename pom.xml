@@ -57,5 +57,6 @@
 		<module>koldfish-dam-example</module>
 		<module>koldfish-dam-client</module>
 		<module>koldfish-dam-test</module>
+		<module>koldfish-dam-rest-api</module>
 	</modules>
 </project>

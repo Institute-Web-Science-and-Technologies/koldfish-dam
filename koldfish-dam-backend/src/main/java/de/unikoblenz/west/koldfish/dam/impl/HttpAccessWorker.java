@@ -2,6 +2,7 @@ package de.unikoblenz.west.koldfish.dam.impl;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -39,11 +40,13 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
   private final String iri;
   private final Dictionary dict;
   private final EncodingParser parser;
+  private final Semaphore semaphore;
 
-  public HttpAccessWorker(Dictionary dict, EncodingParser parser, String iri) {
+  public HttpAccessWorker(Dictionary dict, EncodingParser parser, String iri, Semaphore semaphore) {
     this.dict = dict;
     this.iri = iri;
     this.parser = parser;
+    this.semaphore = semaphore;
 
     log.debug("accessing: {}", iri);
   }
@@ -59,6 +62,7 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
       HttpGet httpget = new HttpGet(iri);
       httpget.setHeaders(headers);
 
+      semaphore.acquire();
       try (CloseableHttpResponse response = httpclient.execute(httpget);) {
 
         log.debug("status line: {}", response.getStatusLine());
@@ -84,6 +88,7 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
           throw e;
         } finally {
           EntityUtils.consumeQuietly(entity);
+          semaphore.release();
         }
       } catch (Exception e) {
         throw e;
@@ -103,7 +108,7 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
     try {
       return call();
     } catch (Exception e) {
-      return null;
+      throw new RuntimeException(e);
     }
   }
 }
