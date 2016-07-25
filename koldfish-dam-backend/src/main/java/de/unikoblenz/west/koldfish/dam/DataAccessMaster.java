@@ -3,11 +3,14 @@ package de.unikoblenz.west.koldfish.dam;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import javax.jms.JMSException;
 
 import org.apache.jena.iri.IRIFactory;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +22,7 @@ import de.unikoblenz.west.koldfish.dam.impl.JenaEncodingParser;
 import de.unikoblenz.west.koldfish.dictionary.Dictionary;
 import de.unikoblenz.west.koldfish.messages.DerefEncodedIriMessage;
 import de.unikoblenz.west.koldfish.messages.DerefIriMessage;
+import de.unikoblenz.west.koldfish.messages.DerefResponse;
 import de.unikoblenz.west.koldfish.messages.KoldfishMessage;
 import de.unikoblenz.west.koldfish.messaging.ConnectionManager;
 import de.unikoblenz.west.koldfish.messaging.KoldfishMessageListener;
@@ -103,23 +107,14 @@ public class DataAccessMaster {
     log.debug("deref: {}", iri);
 
     if (!service.isShutdown()) {
-      CompletableFuture
-          .supplyAsync(new HttpAccessWorker(dictionary, parser, iri, getSemaphore(iri)), service)
-          .whenComplete((result, ex) -> {
-            try {
-              if (ex != null) {
-                service.execute(new ErrorWorkerImpl(dictionary, manager, iri, new Exception(ex)));
-              } else if (result != null) {
-                log.debug("success, result: {}", result);
-                manager.sentToTopic("dam.data", result);
-              } else {
-                service.execute(new ErrorWorkerImpl(dictionary, manager, iri,
-                    new Exception("something went wrong")));
-              }
-            } catch (Exception e) {
-              log.error(e);
-            }
-          });
+      Future<DerefResponse> future =
+          service.submit(new HttpAccessWorker(dictionary, parser, iri, getSemaphore(iri)));
+
+      try {
+        manager.sentToTopic("dam.data", future.get());
+      } catch (InterruptedException | ExecutionException | JMSException e) {
+        service.execute(new ErrorWorkerImpl(dictionary, manager, iri, e));
+      }
     } else {
       log.error("executor already shut down");
     }
@@ -131,13 +126,15 @@ public class DataAccessMaster {
    * @return
    */
   private Semaphore getSemaphore(String iri) {
-    String domain = IRIFactory.iriImplementation().construct(iri).getHost();
-
-    // question: is this necessary, because IRIs without host name should not be HTTP accessible.
-    if (domain == null) {
+    String domain;
+    try {
+      domain = IRIFactory.iriImplementation().construct(iri).toASCIIString();
+    } catch (Exception e) {
       return new Semaphore(1);
     }
-    if (domainSemaphores.containsKey(domain)) {
+    // question: is this necessary, because IRIs without host name should not be HTTP accessible.
+
+    if (!domainSemaphores.containsKey(domain)) {
       domainSemaphores.put(domain, new Semaphore(4));
     }
     return domainSemaphores.get(iri);

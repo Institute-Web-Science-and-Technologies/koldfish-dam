@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 
 import de.unikoblenz.west.koldfish.dam.DataAccessWorker;
 import de.unikoblenz.west.koldfish.dam.EncodingParser;
-import de.unikoblenz.west.koldfish.dam.ParserException;
 import de.unikoblenz.west.koldfish.dictionary.Dictionary;
 import de.unikoblenz.west.koldfish.messages.DerefResponse;
 
@@ -47,8 +46,6 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
     this.iri = iri;
     this.parser = parser;
     this.semaphore = semaphore;
-
-    log.debug("accessing: {}", iri);
   }
 
   /*
@@ -58,44 +55,41 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
    */
   @Override
   public DerefResponse call() throws Exception {
-    try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-      HttpGet httpget = new HttpGet(iri);
-      httpget.setHeaders(headers);
+    log.debug("accessing: {}", iri);
 
-      semaphore.acquire();
-      try (CloseableHttpResponse response = httpclient.execute(httpget);) {
+    HttpGet httpget = new HttpGet(iri);
+    httpget.setHeaders(headers);
 
-        log.debug("status line: {}", response.getStatusLine());
+    log.debug("semaphore: {}", semaphore);
 
-        HttpEntity entity = response.getEntity();
-        if (entity == null) {
-          throw new Exception("received nothing from: " + iri);
-        }
-        try {
-          InputStream rdf = entity.getContent();
+    semaphore.acquire();
+    try (CloseableHttpClient httpclient = HttpClients.createDefault();
+        CloseableHttpResponse response = httpclient.execute(httpget);) {
 
-          log.debug("data retrieved");
+      log.debug("status line: {}", response.getStatusLine());
 
-          try {
-            List<long[]> result = parser.parse(iri, rdf);
-            log.debug("data parsed");
-
-            return new DerefResponse(dict.convertIris(Lists.newArrayList(iri)).get(0), result);
-          } catch (ParserException e) {
-            throw e;
-          }
-        } catch (Exception e) {
-          throw e;
-        } finally {
-          EntityUtils.consumeQuietly(entity);
-          semaphore.release();
-        }
-      } catch (Exception e) {
-        throw e;
+      HttpEntity entity = response.getEntity();
+      if (entity == null) {
+        throw new Exception("received nothing from: " + iri);
       }
-    } catch (Exception e) {
-      throw e;
+      try {
+        InputStream rdf = entity.getContent();
+
+        log.debug("data retrieved");
+
+        List<long[]> result = parser.parse(iri, rdf);
+        log.debug("data parsed");
+
+        return new DerefResponse(dict.convertIris(Lists.newArrayList(iri)).get(0), result);
+      } catch (Throwable e) {
+        throw e;
+      } finally {
+        EntityUtils.consumeQuietly(entity);
+      }
+    } finally {
+      semaphore.release();
     }
+
   }
 
   /*

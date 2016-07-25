@@ -26,10 +26,10 @@ public class ErrorWorkerImpl implements ErrorWorker {
   private final Dictionary dictionary;
   private final ConnectionManager manager;
   private final String iri;
-  private final Throwable cause;
+  private final Exception cause;
 
   public ErrorWorkerImpl(Dictionary dictionary, ConnectionManager manager, String iri,
-      Throwable cause) {
+      Exception cause) {
     this.dictionary = dictionary;
     this.manager = manager;
     this.iri = iri;
@@ -45,7 +45,7 @@ public class ErrorWorkerImpl implements ErrorWorker {
    */
   @Override
   public void run() {
-    log.debug("exception occured: ", cause.getLocalizedMessage());
+    log.debug("exception occured: ", cause.getMessage());
     try {
       manager.sentToTopic("dam.errors", createErrorResponseImpl(iri, cause));
     } catch (JMSException e) {
@@ -56,7 +56,8 @@ public class ErrorWorkerImpl implements ErrorWorker {
   // creates ErrorResponseImpl for throwing
   private DerefErrorResponse createErrorResponseImpl(String iri, Throwable e) {
     try {
-      return new DerefErrorResponse(dictionary.convertIris(Lists.newArrayList(iri)).get(0), e);
+      return new DerefErrorResponse(dictionary.convertIris(Lists.newArrayList(iri)).get(0),
+          new Exception(String.format("could not deref %s, cause: %s", iri, e.getMessage())));
     } catch (JMSException e1) {
       return new DerefErrorResponse(0, e1);
     }
