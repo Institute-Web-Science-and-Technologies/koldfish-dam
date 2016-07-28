@@ -1,28 +1,23 @@
 package de.unikoblenz.west.koldfish.dam;
 
 import java.security.InvalidParameterException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import javax.jms.JMSException;
-
-import org.apache.jena.iri.IRIFactory;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.unikoblenz.west.koldfish.dam.impl.ErrorWorkerImpl;
+import de.unikoblenz.west.koldfish.dam.impl.DerefResponseWorker;
+import de.unikoblenz.west.koldfish.dam.impl.ErrorWorkerFactory;
 import de.unikoblenz.west.koldfish.dam.impl.HttpAccessWorker;
 import de.unikoblenz.west.koldfish.dam.impl.JenaEncodingParser;
 import de.unikoblenz.west.koldfish.dictionary.Dictionary;
 import de.unikoblenz.west.koldfish.messages.DerefEncodedIriMessage;
 import de.unikoblenz.west.koldfish.messages.DerefIriMessage;
-import de.unikoblenz.west.koldfish.messages.DerefResponse;
 import de.unikoblenz.west.koldfish.messages.KoldfishMessage;
 import de.unikoblenz.west.koldfish.messaging.ConnectionManager;
 import de.unikoblenz.west.koldfish.messaging.KoldfishMessageListener;
@@ -38,11 +33,16 @@ public class DataAccessMaster {
   private static final Logger log = LogManager.getLogger(DataAccessMaster.class);
 
   private final ExecutorService service = Executors.newCachedThreadPool();
+
+  private final PoolingHttpClientConnectionManager httpConnectionManager =
+      new PoolingHttpClientConnectionManager();
+
+  private final RequestConfig config;
+
   private final ConnectionManager manager;
+
   private final Dictionary dictionary;
   private final EncodingParser parser;
-
-  private final Map<String, Semaphore> domainSemaphores = new HashMap<String, Semaphore>();
 
   /**
    * starts the DataAccessManager
@@ -53,10 +53,15 @@ public class DataAccessMaster {
     log.info("starting data access module");
 
     try {
+      // set up dictionary
       Dictionary dict = new Dictionary();
 
-      new DataAccessMaster(dict,
-          new JenaEncodingParser(dict, DictionaryHelper.convertIri(dict, "")));
+      // set up encoding parser
+      EncodingParser parser = new JenaEncodingParser(dict, DictionaryHelper.convertIri(dict, ""));
+
+
+      // create master
+      new DataAccessMaster(dict, parser);
     } catch (Exception e) {
       log.error("could not initialized DAM", e);
     }
@@ -65,6 +70,9 @@ public class DataAccessMaster {
   private DataAccessMaster(Dictionary dictionary, EncodingParser parser) throws Exception {
     this.dictionary = dictionary;
     this.parser = parser;
+
+    // setting request config
+    config = RequestConfig.custom().setConnectTimeout(10000).build();
 
     manager = new ConnectionManagerImpl();
     manager.queueReceiver("dam.deref").addListener(new KoldfishMessageListener() {
@@ -80,17 +88,17 @@ public class DataAccessMaster {
                 ((DerefEncodedIriMessage) msg).getEncodedIri()));
           }
         } catch (Exception e) {
-          log.error("error during processing {}:", msg);
-          log.error(e);
+          log.warn("error during processing {}: {}", msg, e.getMessage());
         }
       }
 
     });
 
     log.debug("created");
+
     manager.start();
 
-    log.debug("started");
+    log.info("started");
 
   }
 
@@ -107,37 +115,15 @@ public class DataAccessMaster {
     log.debug("deref: {}", iri);
 
     if (!service.isShutdown()) {
-      Future<DerefResponse> future =
-          service.submit(new HttpAccessWorker(dictionary, parser, iri, getSemaphore(iri)));
+      service.execute(new DerefResponseWorker(manager, service,
+          new HttpAccessWorker(dictionary, parser, iri,
+              HttpClientBuilder.create().setConnectionManager(httpConnectionManager)
+                  .setConnectionManagerShared(true).setDefaultRequestConfig(config)),
+          new ErrorWorkerFactory(dictionary, manager, iri)));
 
-      try {
-        manager.sentToTopic("dam.data", future.get());
-      } catch (InterruptedException | ExecutionException | JMSException e) {
-        service.execute(new ErrorWorkerImpl(dictionary, manager, iri, e));
-      }
     } else {
       log.error("executor already shut down");
     }
-  }
-
-  /**
-   * 
-   * @param iri
-   * @return
-   */
-  private Semaphore getSemaphore(String iri) {
-    String domain;
-    try {
-      domain = IRIFactory.iriImplementation().construct(iri).toASCIIString();
-    } catch (Exception e) {
-      return new Semaphore(1);
-    }
-    // question: is this necessary, because IRIs without host name should not be HTTP accessible.
-
-    if (!domainSemaphores.containsKey(domain)) {
-      domainSemaphores.put(domain, new Semaphore(4));
-    }
-    return domainSemaphores.get(iri);
   }
 
   /**
@@ -145,20 +131,28 @@ public class DataAccessMaster {
    */
   public void close() {
     log.debug("closing");
+
+    try {
+      httpConnectionManager.shutdown();
+    } catch (Exception e) {
+      log.warn(e);
+    }
+
     try {
       manager.stop();
+    } catch (Exception e) {
+      log.warn(e);
+    }
 
+    try {
       service.shutdown();
       if (!service.awaitTermination(30, TimeUnit.SECONDS)) {
         service.shutdownNow();
-
       }
-
     } catch (Exception e) {
-      log.error(e);
-    } finally {
-      log.debug("closed");
+      log.warn(e);
     }
+    log.info("closed");
   }
 
   @Override

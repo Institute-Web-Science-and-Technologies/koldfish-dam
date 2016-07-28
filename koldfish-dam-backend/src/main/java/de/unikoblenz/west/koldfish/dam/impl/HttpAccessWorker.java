@@ -2,14 +2,14 @@ package de.unikoblenz.west.koldfish.dam.impl;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
@@ -36,16 +36,18 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
           new BasicHeader("Accept-Encoding", "gzip")// gzip is allowed
       };
 
+  private final HttpClientBuilder builder;
+
   private final String iri;
   private final Dictionary dict;
   private final EncodingParser parser;
-  private final Semaphore semaphore;
 
-  public HttpAccessWorker(Dictionary dict, EncodingParser parser, String iri, Semaphore semaphore) {
+  public HttpAccessWorker(Dictionary dict, EncodingParser parser, String iri,
+      HttpClientBuilder builder) {
     this.dict = dict;
     this.iri = iri;
     this.parser = parser;
-    this.semaphore = semaphore;
+    this.builder = builder;
   }
 
   /*
@@ -59,18 +61,19 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
 
     HttpGet httpget = new HttpGet(iri);
     httpget.setHeaders(headers);
+    httpget.getConfig();
 
-    log.debug("semaphore: {}", semaphore);
+    try (CloseableHttpClient client = builder.build();
+        CloseableHttpResponse response = client.execute(httpget);) {
 
-    semaphore.acquire();
-    try (CloseableHttpClient httpclient = HttpClients.createDefault();
-        CloseableHttpResponse response = httpclient.execute(httpget);) {
-
-      log.debug("status line: {}", response.getStatusLine());
+      if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+        throw new Exception(String.format("could not acces %s: %s", iri, response.getStatusLine()));
+      }
 
       HttpEntity entity = response.getEntity();
+
       if (entity == null) {
-        throw new Exception("received nothing from: " + iri);
+        throw new Exception(String.format("received nothing from: %s", iri));
       }
       try {
         InputStream rdf = entity.getContent();
@@ -81,13 +84,9 @@ public class HttpAccessWorker implements DataAccessWorker<DerefResponse> {
         log.debug("data parsed");
 
         return new DerefResponse(dict.convertIris(Lists.newArrayList(iri)).get(0), result);
-      } catch (Throwable e) {
-        throw e;
       } finally {
         EntityUtils.consumeQuietly(entity);
       }
-    } finally {
-      semaphore.release();
     }
 
   }

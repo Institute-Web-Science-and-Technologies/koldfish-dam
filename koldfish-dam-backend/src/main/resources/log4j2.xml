@@ -9,7 +9,11 @@
 		<Logger name="de.unikoblenz.west.koldfish" level="debug" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
-		<Root level="warn">
+		<Logger name="org.apache." level="debug" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		
+		<Root level="error">
 			<AppenderRef ref="Console" />
 		</Root>
 	</Loggers>

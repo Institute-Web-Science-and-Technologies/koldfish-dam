@@ -26,17 +26,14 @@ public class ErrorWorkerImpl implements ErrorWorker {
   private final Dictionary dictionary;
   private final ConnectionManager manager;
   private final String iri;
-  private final Exception cause;
+  private Throwable cause;
 
-  public ErrorWorkerImpl(Dictionary dictionary, ConnectionManager manager, String iri,
-      Exception cause) {
+  ErrorWorkerImpl(Dictionary dictionary, ConnectionManager manager, String iri, Throwable cause) {
     this.dictionary = dictionary;
     this.manager = manager;
     this.iri = iri;
     this.cause = cause;
   }
-
-
 
   /*
    * (non-Javadoc)
@@ -45,7 +42,7 @@ public class ErrorWorkerImpl implements ErrorWorker {
    */
   @Override
   public void run() {
-    log.debug("exception occured: ", cause.getMessage());
+    log.debug("exception occured: {}", cause.getMessage());
     try {
       manager.sentToTopic("dam.errors", createErrorResponseImpl(iri, cause));
     } catch (JMSException e) {
@@ -54,12 +51,12 @@ public class ErrorWorkerImpl implements ErrorWorker {
   }
 
   // creates ErrorResponseImpl for throwing
-  private DerefErrorResponse createErrorResponseImpl(String iri, Throwable e) {
+  private DerefErrorResponse createErrorResponseImpl(String iri, Throwable t) {
     try {
       return new DerefErrorResponse(dictionary.convertIris(Lists.newArrayList(iri)).get(0),
-          new Exception(String.format("could not deref %s, cause: %s", iri, e.getMessage())));
-    } catch (JMSException e1) {
-      return new DerefErrorResponse(0, e1);
+          new Exception(String.format("could not deref %s, cause: %s", iri, t.getMessage())));
+    } catch (JMSException e) {
+      return new DerefErrorResponse(0, e);
     }
   }
 }

@@ -63,11 +63,9 @@ public class JenaEncodingParser implements EncodingParser {
       try {
         m.read(input, null);
       } catch (Throwable t) {
-        log.error("could not load data", t);
+        log.error("could not load data: {}", t.getMessage());
         throw new ParserException(t);
       }
-
-
 
       log.debug("extracting iris");
 
@@ -77,9 +75,6 @@ public class JenaEncodingParser implements EncodingParser {
       Statement s;
       while (it.hasNext()) {
         s = it.next();
-
-        log.debug("{} {} {}.", handler.handle(iri, s.getSubject()),
-            handler.handle(iri, s.getPredicate()), handler.handle(iri, s.getObject()));
 
         nodeValuesSet.add(handler.handle(iri, s.getSubject()));
         nodeValuesSet.add(handler.handle(iri, s.getPredicate()));
@@ -118,16 +113,14 @@ public class JenaEncodingParser implements EncodingParser {
         Long sub = nodes.get(handler.handle(iri, s.getSubject()));
         Long pred = nodes.get(handler.handle(iri, s.getPredicate()));
         Long obj = nodes.get(handler.handle(iri, s.getObject()));
-        log.debug("{} {} {} = {} {} {}", handler.handle(iri, s.getSubject()),
-            handler.handle(iri, s.getPredicate()), handler.handle(iri, s.getObject()), sub, pred,
-            obj);
+
         result.add(new long[] {sub, pred, obj, encodedDefaultNamespace});
       }
 
       log.debug("parsing done");
       return result;
     } catch (Exception e) {
-      log.error("error occurred during parsing!", e);
+      log.error("error occurred during parsing: {}", e.getMessage());
       throw new ParserException(e);
     }
   }

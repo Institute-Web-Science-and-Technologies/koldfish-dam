@@ -64,7 +64,7 @@ public class DataAccessModuleMain {
 
       @Override
       public void onErrorResponse(ErrorResponse response) {
-        log.error(response);
+        log.error(response.getException());
       }
 
     });
