@@ -43,7 +43,7 @@ public class SimpleRdfNodeHandler implements RdfNodeHandler {
       if (projectFolder.equalsIgnoreCase(uri)) {
         return here;
       }
-      return "<" + uri + ">";
+      return uri;
     }
 
     /*
@@ -74,7 +74,7 @@ public class SimpleRdfNodeHandler implements RdfNodeHandler {
   public String handle(String iri, RDFNode toVisit) {
     Object o = toVisit.visitWith(visitor);
     if (o == here) {
-      return "<" + iri + ">";
+      return iri;
     }
     return (String) o;
   }

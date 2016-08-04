@@ -3,10 +3,11 @@
  */
 package de.unikoblenz.west.koldfish.dam.cli;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.jms.JMSException;
 
 import org.apache.jena.iri.IRI;
 import org.apache.jena.iri.IRIException;
@@ -14,11 +15,14 @@ import org.apache.jena.iri.IRIFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.primitives.Longs;
+
 import de.unikoblenz.west.koldfish.dam.DataAccessModule;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleException;
 import de.unikoblenz.west.koldfish.dam.DataAccessModuleListener;
 import de.unikoblenz.west.koldfish.dam.ErrorResponse;
 import de.unikoblenz.west.koldfish.dam.impl.JmsDataAccessModule;
+import de.unikoblenz.west.koldfish.dictionary.Dictionary;
 import de.unikoblenz.west.koldfish.messages.DerefResponse;
 
 /**
@@ -55,10 +59,16 @@ public class DataAccessModuleMain {
 
     dam.addListener(new DataAccessModuleListener() {
 
+      Dictionary dict = new Dictionary();
+
       @Override
       public void onDerefResponse(DerefResponse response) {
         for (long[] items : response) {
-          log.debug(Arrays.toString(items));
+          try {
+            log.debug(dict.convertIds(Longs.asList(items)));
+          } catch (JMSException e) {
+            log.error(e);
+          }
         }
       }
 

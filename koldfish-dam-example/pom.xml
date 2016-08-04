@@ -38,5 +38,10 @@
 			<artifactId>koldfish-dam-client</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>de.unikoblenz.west.koldfish</groupId>
+			<artifactId>koldfish-dictionary-api</artifactId>
+			<version>0.1</version>
+		</dependency>
 	</dependencies>
 </project>
