@@ -39,9 +39,9 @@ public class JmsDataAccessModule implements DataAccessModule {
   /**
    * creates a new JmsDataAccessModule object with the given DataAccessModuleListener
    * 
-   * @throws Exception triggered if connection to JMS could not be created.
+   * @throws JMSException triggered if connection to JMS could not be created.
    */
-  public JmsDataAccessModule() throws Exception {
+  public JmsDataAccessModule() throws JMSException {
     manager = new ConnectionManagerImpl();
     manager.topicReceiver("dam.errors").addListener(new KoldfishMessageListener() {
       @Override
