@@ -4,8 +4,6 @@
 package de.unikoblenz.west.koldfish.messages;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * implementation for DerefResponse
@@ -18,11 +16,11 @@ public class DerefResponse implements KoldfishMessage, Iterable<long[]> {
 
   private final long compressedIri;
 
-  private LinkedList<long[]> data;
+  private Iterable<long[]> data;
 
-  public DerefResponse(long compressedIri, List<long[]> data) {
+  public DerefResponse(long compressedIri, Iterable<long[]> data) {
     this.compressedIri = compressedIri;
-    this.data = new LinkedList<long[]>(data);
+    this.data = data;
   }
 
   /*
@@ -37,7 +35,7 @@ public class DerefResponse implements KoldfishMessage, Iterable<long[]> {
 
   @Override
   public String toString() {
-    return "DerefResponse [compressedIri=" + compressedIri + ", size=" + data.size() + "]";
+    return "DerefResponse [compressedIri=" + compressedIri + "]";
   }
 
   /**
