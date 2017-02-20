@@ -3,6 +3,7 @@
  */
 package de.unikoblenz.west.koldfish.messages;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -17,6 +18,11 @@ public class DerefResponse implements KoldfishMessage, Iterable<long[]> {
   private final long compressedIri;
 
   private Iterable<long[]> data;
+
+  public DerefResponse(long compressedIri, Collection<long[]> data) {
+    this.compressedIri = compressedIri;
+    this.data = data;
+  }
 
   public DerefResponse(long compressedIri, Iterable<long[]> data) {
     this.compressedIri = compressedIri;
